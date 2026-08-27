@@ -20,3 +20,16 @@
 * {
   font-family: 'Pretendard Variable', sans-serif;
 }
+
+body {
+  background: #ececec;
+  min-height: 100vh;
+}
+
+#app {
+  box-sizing: border-box;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+}
