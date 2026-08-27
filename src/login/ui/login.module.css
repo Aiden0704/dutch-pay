@@ -1,0 +1,79 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  padding-bottom: 32px;
+}
+
+.hero {
+  text-align: center;
+}
+
+.icon {
+  font-size: 48px;
+}
+
+.title {
+  margin-top: 12px;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--violet);
+}
+
+.subtitle {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-gray);
+}
+
+.card {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.kakaoButton {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.kakaoButton img {
+  width: 300px;
+  height: auto;
+}
+
+@media (min-width: 481px) {
+  .kakaoButton img {
+    width: 360px;
+  }
+}
+
+.terms {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-gray-light);
+}
