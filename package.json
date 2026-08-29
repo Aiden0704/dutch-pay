@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev: full": "wrangler pages dev -- npm run dev",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -12,6 +13,7 @@
     "@typescript-eslint/eslint-plugin": "^8.68.0",
     "eslint": "^10.9.1",
     "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "wrangler": "^4.127.0"
   }
 }
