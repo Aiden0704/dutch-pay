@@ -2,6 +2,7 @@ import type { Env } from './types';
 import { exchangeCodeForKakaoUser } from './kakao-oauth';
 import { createSupabaseClient } from '../../_shared/supabase';
 import { findOrCreateUser } from './repository';
+import { createJwtToken } from '../../_shared/session';
 
 export async function onRequestGet({
   request,
@@ -20,6 +21,13 @@ export async function onRequestGet({
   const kakaoUser = await exchangeCodeForKakaoUser(code, env);
   const supabase = createSupabaseClient(env);
   const user = await findOrCreateUser(kakaoUser, supabase);
+  const jwtToken = await createJwtToken(user.id, env);
 
-  return Response.json(user);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Set-Cookie': `token=${jwtToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800`,
+      Location: '/',
+    },
+  });
 }
