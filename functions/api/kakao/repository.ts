@@ -5,13 +5,13 @@ export async function findOrCreateUser(
   kakaoUser: KakaoUser,
   supabaseClient: SupabaseClient
 ) {
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('users')
     .select()
     .eq('kakao_id', kakaoUser.id);
 
   if (!data) {
-    throw new Error('사용자 조회 실패');
+    throw new Error(`사용자 조회 실패: ${JSON.stringify(error)}`);
   }
 
   if (data.length === 0) {
