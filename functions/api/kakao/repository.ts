@@ -1,0 +1,34 @@
+import type { KakaoUser } from './types';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+export async function findOrCreateUser(
+  kakaoUser: KakaoUser,
+  supabaseClient: SupabaseClient
+) {
+  const { data } = await supabaseClient
+    .from('users')
+    .select()
+    .eq('kakao_id', kakaoUser.id);
+
+  if (!data) {
+    throw new Error('사용자 조회 실패');
+  }
+
+  if (data.length === 0) {
+    const { data: newData } = await supabaseClient
+      .from('users')
+      .insert({
+        kakao_id: kakaoUser.id,
+        nickname: kakaoUser.properties?.nickname,
+      })
+      .select();
+
+    if (!newData) {
+      throw new Error('사용자 생성에 실패');
+    }
+
+    return newData[0];
+  } else {
+    return data[0];
+  }
+}
