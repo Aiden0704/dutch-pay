@@ -35,6 +35,17 @@ export async function onRequestGet({
 
   const response = await exchangeCodeForToken(code, env);
   const token = await response.json();
+async function getKakaoUserInfo(accessToken: string) {
+  const url = 'https://kapi.kakao.com/v2/user/me';
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    },
+  });
+  return response;
+}
 
   return Response.json(token);
 }
