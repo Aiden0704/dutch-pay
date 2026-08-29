@@ -32,11 +32,16 @@ export function renderLogin(root: HTMLElement) {
           .join('')}
       </div>
 
-      <button class="${styles.kakaoButton}" type="button">
+      <button id='kakao-button' class="${styles.kakaoButton}" type="button">
           <img src="${kakaoLoginImg}" alt="카카오 로그인">
       </button>
 
       <p class="${styles.terms}">로그인하면 이용약관에 동의하는 것으로 간주합니다</p>
     </div>
   `;
+
+  const kakaoButton = root.querySelector('#kakao-button');
+  kakaoButton.addEventListener('click', () => {
+    window.location.href = '/api/kakao/login';
+  });
 }
