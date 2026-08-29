@@ -1,4 +1,4 @@
-import type { Env } from './types';
+import type { Env, KakaoUser } from './types';
 
 async function exchangeCodeForToken(code: string, env: Env) {
   const url = 'https://kauth.kakao.com/oauth/token';
@@ -16,6 +16,10 @@ async function exchangeCodeForToken(code: string, env: Env) {
     }),
   });
 
+  if (!response.ok) {
+    throw new Error('코드를 토큰으로 변환할 수 없습니다');
+  }
+
   return response;
 }
 
@@ -28,10 +32,18 @@ async function getKakaoUserInfo(accessToken: string) {
       'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
     },
   });
+
+  if (!response.ok) {
+    throw new Error('유저 정보를 확인할 수 없습니다');
+  }
+
   return response;
 }
 
-export async function exchangeCodeForKakaoUser(code: string, env: Env) {
+export async function exchangeCodeForKakaoUser(
+  code: string,
+  env: Env
+): Promise<KakaoUser> {
   const tokenResponse = await exchangeCodeForToken(code, env);
   const token = await tokenResponse.json();
 
