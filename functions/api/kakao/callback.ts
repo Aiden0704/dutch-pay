@@ -33,8 +33,10 @@ export async function onRequestGet({
     return new Response('코드가 유효하지 않습니다', { status: 400 });
   }
 
-  const response = await exchangeCodeForToken(code, env);
-  const token = await response.json();
+  const kakaoUser = exchangeCodeForKakaoUser(code, env);
+  return Response.json(kakaoUser);
+}
+
 async function getKakaoUserInfo(accessToken: string) {
   const url = 'https://kapi.kakao.com/v2/user/me';
   const response = await fetch(url, {
@@ -47,5 +49,10 @@ async function getKakaoUserInfo(accessToken: string) {
   return response;
 }
 
-  return Response.json(token);
+async function exchangeCodeForKakaoUser(code: string, env: Env) {
+  const tokenResponse = await exchangeCodeForToken(code, env);
+  const token = await tokenResponse.json();
+
+  const userInfoResponse = await getKakaoUserInfo(token.access_token);
+  return await userInfoResponse.json();
 }
