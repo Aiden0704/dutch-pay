@@ -3,6 +3,7 @@ import { exchangeCodeForKakaoUser } from './kakao-oauth';
 import { createSupabaseClient } from '../../_shared/supabase';
 import { findOrCreateUser } from './repository';
 import { createJwtToken } from '../../_shared/session';
+import { redirectWithCookie } from '../../_shared/http';
 
 export async function onRequestGet({
   request,
@@ -35,12 +36,11 @@ export async function onRequestGet({
     const user = await findOrCreateUser(kakaoUser, supabase);
     const jwtToken = await createJwtToken(user.id, env);
 
-    return new Response(null, {
-      status: 302,
-      headers: {
-        'Set-Cookie': `token=${jwtToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800`,
-        Location: '/',
-      },
+    return redirectWithCookie({
+      location: '/',
+      cookieName: 'token',
+      cookieValue: jwtToken,
+      maxAge: 604800,
     });
   } catch {
     return Response.redirect('/?error=login_failed', 302);
