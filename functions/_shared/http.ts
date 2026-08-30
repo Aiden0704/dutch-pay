@@ -7,13 +7,13 @@ interface RedirectWithCookieOptions {
 
 export function redirectWithCookie(options: RedirectWithCookieOptions) {
   const { location, cookieName, cookieValue, maxAge } = options;
-  const maxAgePart = maxAge ? `; Max-Age=${maxAge}` : '';
+  const maxAgePart = maxAge !== undefined ? `; Max-Age=${maxAge}` : '';
 
   return new Response(null, {
     status: 302,
     headers: {
       'Set-Cookie': `${cookieName}=${cookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/${maxAgePart}`,
-      Location: `${location}`,
+      Location: location,
     },
   });
 }
