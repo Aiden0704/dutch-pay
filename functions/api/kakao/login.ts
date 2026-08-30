@@ -1,4 +1,5 @@
 import type { Env } from './types';
+import { redirectWithCookie } from '../../_shared/http';
 
 export function onRequestGet({ env }: { env: Env }) {
   const randomValue = crypto.randomUUID();
@@ -8,11 +9,10 @@ export function onRequestGet({ env }: { env: Env }) {
 
   const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${restApiKey}&redirect_uri=${redirectUri}&state=${randomValue}`;
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      'Set-Cookie': `state=${randomValue}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=300;`,
-      Location: url,
-    },
+  return redirectWithCookie({
+    location: url,
+    cookieName: 'state',
+    cookieValue: randomValue,
+    maxAge: 300,
   });
 }
