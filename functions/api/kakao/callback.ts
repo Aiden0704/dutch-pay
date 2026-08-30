@@ -14,9 +14,20 @@ export async function onRequestGet({
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
+    const queryState = searchParams.get('state');
 
     if (!code) {
       return new Response('코드가 유효하지 않습니다', { status: 400 });
+    }
+
+    const cookieHeader = request.headers.get('Cookie') ?? '';
+    const stateCookie = cookieHeader
+      .split('; ')
+      .find((cookie) => cookie.startsWith('state='));
+    const cookieState = stateCookie?.split('=')[1];
+
+    if (!cookieState || cookieState !== queryState) {
+      return new Response('잘못된 요청입니다', { status: 400 });
     }
 
     const kakaoUser = await exchangeCodeForKakaoUser(code, env);
