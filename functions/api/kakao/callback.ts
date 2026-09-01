@@ -3,7 +3,7 @@ import { exchangeCodeForKakaoUser } from './kakao-oauth';
 import { createSupabaseClient } from '../../_shared/supabase';
 import { findOrCreateUser } from './repository';
 import { createJwtToken } from '../../_shared/session';
-import { redirectWithCookie } from '../../_shared/http';
+import { redirectWithCookie, getCookie } from '../../_shared/http';
 
 export async function onRequestGet({
   request,
@@ -16,16 +16,11 @@ export async function onRequestGet({
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
     const queryState = searchParams.get('state');
+    const cookieState = getCookie(request, 'state');
 
     if (!code) {
       return new Response('코드가 유효하지 않습니다', { status: 400 });
     }
-
-    const cookieHeader = request.headers.get('Cookie') ?? '';
-    const stateCookie = cookieHeader
-      .split('; ')
-      .find((cookie) => cookie.startsWith('state='));
-    const cookieState = stateCookie?.split('=')[1];
 
     if (!cookieState || cookieState !== queryState) {
       return new Response('잘못된 요청입니다', { status: 400 });
