@@ -17,3 +17,14 @@ export function redirectWithCookie(options: RedirectWithCookieOptions) {
     },
   });
 }
+
+export function getCookie(request: Request, name: string) {
+  const cookieHeader = request.headers.get('Cookie') ?? '';
+  const matchedCookie = cookieHeader
+    .split('; ')
+    .find((cookie) => cookie.startsWith(name + '='));
+  const index = matchedCookie?.indexOf('=');
+  const cookieValue = matchedCookie?.slice(index + 1);
+
+  return cookieValue;
+}
