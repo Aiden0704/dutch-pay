@@ -23,8 +23,13 @@ export function getCookie(request: Request, name: string) {
   const matchedCookie = cookieHeader
     .split('; ')
     .find((cookie) => cookie.startsWith(name + '='));
-  const index = matchedCookie?.indexOf('=');
-  const cookieValue = matchedCookie?.slice(index + 1);
+
+  if (!matchedCookie) {
+    return;
+  }
+
+  const index = matchedCookie.indexOf('=');
+  const cookieValue = matchedCookie.slice(index + 1);
 
   return cookieValue;
 }
