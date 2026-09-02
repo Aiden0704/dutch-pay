@@ -18,7 +18,7 @@ export function redirectWithCookie(options: RedirectWithCookieOptions) {
   });
 }
 
-export function getCookie(request: Request, name: string) {
+export function getCookie(request: Request, name: string): string | undefined {
   const cookieHeader = request.headers.get('Cookie') ?? '';
   const matchedCookie = cookieHeader
     .split('; ')

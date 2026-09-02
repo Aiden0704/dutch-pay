@@ -9,7 +9,7 @@ export async function onRequestGet({
 }: {
   request: Request;
   env: SupabaseEnv & SessionEnv;
-}) {
+}): Promise<Response> {
   const token = getCookie(request, 'token');
   const supabase = createSupabaseClient(env);
   let userId: number;
