@@ -1,9 +1,16 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+export interface User {
+  id: number;
+  kakao_id: number;
+  nickname?: string;
+  created_at: string;
+}
+
 export async function findUserById(
   userId: number,
   supabaseClient: SupabaseClient
-) {
+): Promise<User | undefined> {
   const { data, error } = await supabaseClient
     .from('users')
     .select()
