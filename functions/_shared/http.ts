@@ -27,9 +27,7 @@ export function getCookie(request: Request, name: string): string | undefined {
   if (!matchedCookie) {
     return;
   }
-
-  const index = matchedCookie.indexOf('=');
-  const cookieValue = matchedCookie.slice(index + 1);
+  const cookieValue = matchedCookie.slice(name.length + 1);
 
   return cookieValue;
 }
