@@ -1,7 +1,7 @@
 import { createSupabaseClient, type SupabaseEnv } from '../_shared/supabase';
 import { verifyJwtToken, type SessionEnv } from '../_shared/session';
 import { getCookie } from '../_shared/http';
-import { findUserById } from './kakao/repository';
+import { findUserById } from '../_shared/users';
 
 export async function onRequestGet({
   request,
@@ -20,6 +20,10 @@ export async function onRequestGet({
     const userId = await verifyJwtToken(token, env);
     const supabase = createSupabaseClient(env);
     const user = await findUserById(userId, supabase);
+
+    if (user === undefined) {
+      return Response.json({ loggedIn: false });
+    }
 
     return Response.json({ loggedIn: true, user });
   } catch {
