@@ -11,22 +11,27 @@ export async function onRequestGet({
   env: SupabaseEnv & SessionEnv;
 }) {
   const token = getCookie(request, 'token');
+  const supabase = createSupabaseClient(env);
+  let userId: number;
 
   if (!token) {
-    return Response.json({ loggedIn: false });
+    return Response.json({ loggedIn: false, reason: '토큰이 없습니다' });
   }
 
   try {
-    const userId = await verifyJwtToken(token, env);
-    const supabase = createSupabaseClient(env);
-    const user = await findUserById(userId, supabase);
-
-    if (user === undefined) {
-      return Response.json({ loggedIn: false });
-    }
-
-    return Response.json({ loggedIn: true, user });
+    userId = await verifyJwtToken(token, env);
   } catch {
-    return Response.json({ loggedIn: false });
+    return Response.json({ loggedIn: false, reason: '토큰 위조 / 만료입니다' });
   }
+
+  const user = await findUserById(userId, supabase);
+
+  if (user === undefined) {
+    return Response.json({
+      loggedIn: false,
+      reason: '토큰은 유효하지만 DB에 유저가 없습니다',
+    });
+  }
+
+  return Response.json({ loggedIn: true, user });
 }
