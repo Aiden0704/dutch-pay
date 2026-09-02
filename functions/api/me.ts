@@ -1,5 +1,5 @@
 import { createSupabaseClient, type SupabaseEnv } from '../_shared/supabase';
-import { verifyJwtToken, type SessionEnv } from '../_shared/session';
+import { getUserIdFromToken, type SessionEnv } from '../_shared/session';
 import { getCookie } from '../_shared/http';
 import { findUserById } from '../_shared/users';
 
@@ -19,7 +19,7 @@ export async function onRequestGet({
   }
 
   try {
-    userId = await verifyJwtToken(token, env);
+    userId = await getUserIdFromToken(token, env);
   } catch {
     return Response.json({ loggedIn: false, reason: '토큰 위조 / 만료입니다' });
   }
