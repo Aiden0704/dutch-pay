@@ -20,14 +20,14 @@
   margin-top: 12px;
   font-size: 32px;
   font-weight: 800;
-  color: var(--violet);
+  color: var(--primary);
 }
 
 .subtitle {
   margin-top: 12px;
   font-size: 15px;
   line-height: 1.6;
-  color: var(--text-gray);
+  color: var(--text-secondary);
 }
 
 .card {
@@ -75,5 +75,5 @@
 .terms {
   margin-top: 12px;
   font-size: 12px;
-  color: var(--text-gray-light);
+  color: var(--text-tertiary);
 }

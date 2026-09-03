@@ -1,13 +1,13 @@
 :root {
-  --violet: #7c3aed;
-  --violet-dark: #5b21b6;
-  --violet-light: #ddd6fe;
+  --primary: #7c3aed;
+  --primary-dark: #5b21b6;
+  --primary-light: #ddd6fe;
 
   --bg: #f8f7ff;
 
   --text-primary: #1a1a1a;
-  --text-gray: #64748b;
-  --text-gray-light: #cbd5e1;
+  --text-secondary: #64748b;
+  --text-tertiary: #cbd5e1;
 
   --success: #10b981;
   --warning: #f97316;

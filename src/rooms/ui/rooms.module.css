@@ -18,7 +18,7 @@
 .subtitle {
   margin-top: 6px;
   font-size: 13px;
-  color: var(--text-gray);
+  color: var(--text-secondary);
 }
 
 .list {
@@ -34,7 +34,7 @@
   padding: 16px;
   border: none;
   border-radius: 12px;
-  background: var(--violet);
+  background: var(--primary);
   color: #fff;
   font-size: 15px;
   font-weight: 700;
