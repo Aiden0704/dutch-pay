@@ -23,7 +23,7 @@ export async function findOrCreateUser(
       })
       .select();
 
-    if (!newData) {
+    if (!newData || newData.length === 0) {
       throw new Error('사용자 생성에 실패');
     }
     return newData[0];
