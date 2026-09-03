@@ -38,6 +38,9 @@ export async function onRequestGet({
       maxAge: 604800,
     });
   } catch {
-    return Response.redirect('/?error=login_failed', 302);
+    return Response.redirect(
+      new URL('/?error=login_failed', request.url).toString(),
+      302
+    );
   }
 }
