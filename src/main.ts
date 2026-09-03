@@ -8,11 +8,15 @@ if (!app) {
   throw new Error('#app 엘리먼트를 찾을 수 없습니다');
 }
 
-const response = await fetch('/api/me');
-const data = (await response.json()) as MeResponse;
+try {
+  const response = await fetch('/api/me');
+  const data = (await response.json()) as MeResponse;
 
-if (data.loggedIn === true) {
-  renderRooms(app);
-} else {
+  if (data.loggedIn === true) {
+    renderRooms(app);
+  } else {
+    renderLogin(app);
+  }
+} catch {
   renderLogin(app);
 }
