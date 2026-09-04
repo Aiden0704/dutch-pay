@@ -8,6 +8,14 @@ const infoRows = [
 ];
 
 export function renderLogin(root: HTMLElement) {
+  const searchParams = new URLSearchParams(window.location.search);
+  const error = searchParams.get('error');
+
+  const errorMessage =
+    error === 'login_failed'
+      ? `<p class="${styles.error}">로그인에 실패했어요. 다시 시도해주세요.</p>`
+      : '';
+
   root.innerHTML = `
     <div class="${styles.page}">
       <div class="${styles.hero}">
@@ -31,7 +39,7 @@ export function renderLogin(root: HTMLElement) {
           )
           .join('')}
       </div>
-
+        ${errorMessage}
       <button id='kakao-button' class="${styles.kakaoButton}" type="button">
           <img src="${kakaoLoginImg}" alt="카카오 로그인">
       </button>

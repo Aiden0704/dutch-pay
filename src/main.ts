@@ -22,10 +22,10 @@ try {
     history.replaceState({}, '', '/rooms');
     renderRoute(app, '/rooms', route);
   } else {
-    history.replaceState({}, '', '/login');
+    history.replaceState({}, '', '/login' + window.location.search);
     renderRoute(app, '/login', route);
   }
 } catch {
-  history.replaceState({}, '', '/login');
+  history.replaceState({}, '', '/login' + window.location.search);
   renderRoute(app, '/login', route);
 }
