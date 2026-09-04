@@ -4,14 +4,19 @@ import { renderRooms } from './rooms/ui/rooms';
 import { renderRoute, type Route } from './shared/router';
 import type { MeResponse } from '../shared-types/me';
 
+const PATHS = {
+  LOGIN: '/login',
+  ROOMS: '/rooms',
+} as const;
+
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) {
   throw new Error('#app 엘리먼트를 찾을 수 없습니다');
 }
 
 const route: Route[] = [
-  { pattern: '/login', render: renderLogin },
-  { pattern: '/rooms', render: renderRooms },
+  { pattern: PATHS.LOGIN, render: renderLogin },
+  { pattern: PATHS.ROOMS, render: renderRooms },
 ];
 
 try {
@@ -19,13 +24,18 @@ try {
   const data = (await response.json()) as MeResponse;
 
   if (data.loggedIn === true) {
-    history.replaceState({}, '', '/rooms');
-    renderRoute(app, '/rooms', route);
+    history.replaceState({}, '', PATHS.ROOMS);
+    const didRenderRooms = renderRoute(app, PATHS.ROOMS, route);
+
+    if (!didRenderRooms) {
+      history.replaceState({}, '', PATHS.LOGIN);
+      renderRoute(app, PATHS.LOGIN, route);
+    }
   } else {
-    history.replaceState({}, '', '/login' + window.location.search);
-    renderRoute(app, '/login', route);
+    history.replaceState({}, '', PATHS.LOGIN + window.location.search);
+    renderRoute(app, PATHS.LOGIN, route);
   }
 } catch {
-  history.replaceState({}, '', '/login' + window.location.search);
-  renderRoute(app, '/login', route);
+  history.replaceState({}, '', PATHS.LOGIN + window.location.search);
+  renderRoute(app, PATHS.LOGIN, route);
 }
