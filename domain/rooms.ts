@@ -1,4 +1,4 @@
-interface Room {
+export interface Room {
   id: string;
   name: string;
   host_id: number;
@@ -83,7 +83,7 @@ function findParticipantCheck(
   );
 }
 
-function calculateRoomListItems(
+export function calculateRoomListItems(
   rooms: Room[],
   viewerId: number
 ): RoomListItem[] {
