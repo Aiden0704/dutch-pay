@@ -30,7 +30,7 @@ interface ItemCheck {
   paid_at: string | null;
 }
 
-interface RoomListItem {
+export interface RoomListItem {
   title: string;
   role: 'host' | 'member';
   isCompleted: boolean;
