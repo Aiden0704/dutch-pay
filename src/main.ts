@@ -25,12 +25,7 @@ try {
 
   if (data.loggedIn === true) {
     history.replaceState({}, '', PATHS.ROOMS);
-    const didRenderRooms = renderRoute(app, PATHS.ROOMS, route);
-
-    if (!didRenderRooms) {
-      history.replaceState({}, '', PATHS.LOGIN);
-      renderRoute(app, PATHS.LOGIN, route);
-    }
+    renderRoute(app, PATHS.ROOMS, route);
   } else {
     history.replaceState({}, '', PATHS.LOGIN + window.location.search);
     renderRoute(app, PATHS.LOGIN, route);
