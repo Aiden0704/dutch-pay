@@ -7,9 +7,14 @@ export async function renderRooms(root: HTMLElement): Promise<void> {
 
   try {
     const roomResponse = await fetch('/api/rooms');
+
+    if (!roomResponse.ok) {
+      throw new Error('정산방 목록을 불러오지 못했습니다');
+    }
+
     roomListItems = await roomResponse.json();
   } catch {
-    root.innerHTML = '정산방 리스트가 없습니다';
+    root.innerHTML = '정산방 목록을 불러오지 못했습니다';
     return;
   }
 

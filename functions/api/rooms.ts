@@ -38,6 +38,10 @@ export async function onRequestGet({
 
   const roomIds = myParticipantRows.map((row) => row.room_id);
 
+  if (roomIds.length === 0) {
+    return Response.json([]);
+  }
+
   const { data: rooms, error: roomsError } = await supabase
     .from('rooms')
     .select('*, participants(*), items(*, item_checks(*))')
