@@ -102,12 +102,13 @@ export function calculateRoomListItems(
     const itemCount = room.items.length;
     const totalAmount = calculateTotalAmount(room.items);
     const myAmount = calculateOwedAmount(myParticipant.id, room.items);
-    const completedParticipantCount = room.participants.filter(
-      (participant) =>
-        participant.user_id !== room.host_id &&
-        isParticipantSettled(participant.id, room.items)
+    const nonHostParticipants = room.participants.filter(
+      (participant) => participant.user_id !== room.host_id
+    );
+    const completedParticipantCount = nonHostParticipants.filter(
+      (participant) => isParticipantSettled(participant.id, room.items)
     ).length;
-    const isCompleted = room.participants.every((participant) =>
+    const isCompleted = nonHostParticipants.every((participant) =>
       isParticipantSettled(participant.id, room.items)
     );
 
