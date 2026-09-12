@@ -27,3 +27,4 @@ dist-ssr
 *.sw?
 
 CLAUDE.md
+.vitest/
