@@ -27,7 +27,7 @@ interface ItemCheck {
   id: number;
   item_id: number;
   participant_id: number;
-  paid_at: string | null;
+  paid: boolean;
 }
 
 export interface RoomListItem {
@@ -58,7 +58,7 @@ function isParticipantSettled(participantId: number, items: Item[]): boolean {
     const myChecks = findParticipantCheck(item, participantId);
 
     if (myChecks) {
-      return myChecks.paid_at !== null;
+      return myChecks.paid !== false;
     } else {
       return true;
     }
@@ -92,7 +92,7 @@ export function calculateRoomListItems(
       return viewerId === participant.user_id;
     });
     if (!myParticipant) {
-      throw new Error('유효한 데이터가 아닙니다');
+      throw new Error(`viewerId(${viewerId})가 참여자 목록에 없는 방입니다`);
     }
 
     const title = room.name;
