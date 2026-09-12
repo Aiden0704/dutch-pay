@@ -58,7 +58,7 @@ function isParticipantSettled(participantId: number, items: Item[]): boolean {
     const myChecks = findParticipantCheck(item, participantId);
 
     if (myChecks) {
-      return myChecks.paid !== false;
+      return myChecks.paid;
     } else {
       return true;
     }
