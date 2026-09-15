@@ -64,7 +64,7 @@ export async function renderRooms(root: HTMLElement): Promise<void> {
     </div>
   `;
 
-  const createButton = root.querySelector('#createButton');
+  const createButton = root.querySelector('#create-button');
   createButton.addEventListener('click', () => {
     renderRoomForm(root, {
       onCancel: () => renderRooms(root),
