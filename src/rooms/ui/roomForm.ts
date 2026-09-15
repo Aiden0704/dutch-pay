@@ -13,7 +13,7 @@ export function renderRoomFormHTML(hostName: string): string {
       <div class="${styles.content}">
         <div class="${styles.notice}">
           <p class="${styles.noticeTitle}">💡 방장 안내</p>
-          <p class="${styles.noticeText}">최종 결제하신 분이 방을 만들어주세요. 참여자들이 각자 먹은 항목을 체크하면 방장에게 송금할 금액이 자동으로 계산됩니다.</p>
+          <p class="${styles.noticeText}">최종 결제하신 분이 방을 만들어주세요. <br /> 참여자는 각자 먹은 항목을 체크하면 방장에게 송금할 금액이 자동으로 계산됩니다.</p>
         </div>
 
         <label class="${styles.label}" for="room-name">모임 이름</label>
