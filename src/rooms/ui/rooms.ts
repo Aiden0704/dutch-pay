@@ -1,5 +1,6 @@
 import type { RoomListItem } from '../../../domain/rooms';
 import { escapeHtml } from '../../shared/escapeHtml';
+import { renderRoomForm } from './roomForm';
 import styles from './rooms.module.css';
 
 export async function renderRooms(root: HTMLElement): Promise<void> {
@@ -56,10 +57,18 @@ export async function renderRooms(root: HTMLElement): Promise<void> {
       </div>
 
       <div class="${styles.footer}">
-        <button class="${styles.createButton}" type="button">
+        <button id='create-button' class="${styles.createButton}" type="button" >
           + 새 정산방 만들기
         </button>
       </div>
     </div>
   `;
+
+  const createButton = root.querySelector('#createButton');
+  createButton.addEventListener('click', () => {
+    renderRoomForm(root, {
+      onCancel: () => renderRooms(root),
+      onCreated: () => renderRooms(root),
+    });
+  });
 }
