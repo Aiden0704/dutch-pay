@@ -1,3 +1,7 @@
+import type { MeResponse } from '../../../shared-types/me';
+import { escapeHtml } from '../../shared/escapeHtml';
+import styles from './roomForm.module.css';
+
 export function renderRoomFormHTML(hostName: string): string {
   return `
     <div class="${styles.page}">
@@ -29,3 +33,40 @@ export function renderRoomFormHTML(hostName: string): string {
   `;
 }
 
+export async function renderRoomForm(
+  root: HTMLElement,
+  options: { onCancel: () => void; onCreated: () => void }
+): Promise<void> {
+  let nickname: string;
+
+  try {
+    const response = await fetch('/api/me');
+    const data = (await response.json()) as MeResponse;
+
+    if (data.loggedIn) {
+      nickname = data.user.nickname ?? '닉네임이 없습니다';
+
+      root.innerHTML = renderRoomFormHTML(nickname);
+    } else {
+      throw new Error('로그인 된 사용자가 아닙니다');
+    }
+  } catch {
+    root.innerHTML = '방 만들기에 실패하였습니다';
+    return;
+  }
+
+  const cancelButton = root.querySelector('#cancel-button');
+  cancelButton.addEventListener('click', () => {
+    options.onCancel();
+  });
+
+  const backButton = root.querySelector('#back-button');
+  backButton.addEventListener('click', () => {
+    options.onCancel();
+  });
+
+  const submitButton = root.querySelector('#submit-button');
+  submitButton.addEventListener('click', () => {
+    options.onCreated();
+  });
+}
