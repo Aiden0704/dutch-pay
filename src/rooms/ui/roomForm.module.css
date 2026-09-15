@@ -79,7 +79,7 @@
 .input:disabled {
   background: var(--bg);
   color: var(--text-secondary);
-  cursor: not-allowed;
+  cursor: default;
 }
 
 .error {
