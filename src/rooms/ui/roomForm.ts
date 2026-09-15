@@ -20,7 +20,7 @@ export function renderRoomFormHTML(hostName: string): string {
         <input class="${styles.input}" id="room-name" type="text" placeholder="예: 강남 회식, 제주도 여행" />
 
         <label class="${styles.label}" for="room-host">방장</label>
-        <input class="${styles.input} ${styles.readonlyInput}" id="room-host" type="text" value="${escapeHtml(hostName)}" readonly />
+        <input class="${styles.input}" id="room-host" type="text" value="${escapeHtml(hostName)}" disabled />
 
         <p class="${styles.error}" id="room-form-error"></p>
       </div>
