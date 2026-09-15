@@ -18,11 +18,10 @@ export function renderRoomFormHTML(hostName: string): string {
 
         <label class="${styles.label}" for="room-name">모임 이름</label>
         <input class="${styles.input}" id="room-name" type="text" placeholder="예: 강남 회식, 제주도 여행" />
+        <p class="${styles.error}" id="room-form-error"></p>
 
         <label class="${styles.label}" for="room-host">방장</label>
         <input class="${styles.input}" id="room-host" type="text" value="${escapeHtml(hostName)}" disabled />
-
-        <p class="${styles.error}" id="room-form-error"></p>
       </div>
 
       <div class="${styles.footer}">
@@ -66,7 +65,32 @@ export async function renderRoomForm(
   });
 
   const submitButton = root.querySelector('#submit-button');
-  submitButton.addEventListener('click', () => {
+  submitButton.addEventListener('click', async () => {
+    const inputName = root.querySelector('#room-name') as HTMLInputElement;
+    const roomName = inputName.value.trim();
+    const errorElement = root.querySelector('#room-form-error');
+
+    if (!roomName) {
+      errorElement.textContent = '모임 이름을 입력해주세요';
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: roomName }),
+      });
+
+      if (!response.ok) {
+        errorElement.textContent = '방 생성에 실패하였습니다';
+        return;
+      }
+    } catch {
+      errorElement.textContent = '방 생성에 실패하였습니다';
+      return;
+    }
+
     options.onCreated();
   });
 }
