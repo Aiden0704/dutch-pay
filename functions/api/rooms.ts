@@ -45,6 +45,7 @@ export async function onRequestGet({
   const { data: rooms, error: roomsError } = await supabase
     .from('rooms')
     .select('*, participants(*), items(*, item_checks(*))')
+    .order('created_at', { ascending: false })
     .in('id', roomIds);
 
   if (roomsError) {
