@@ -153,6 +153,7 @@ describe('calculateRoomListItems', () => {
 
     const result = calculateRoomListItems([testRoom], viewerId);
     expect(result[0].isCompleted).toBe(false);
+    expect(result[0].completedParticipantCount).toBe(0);
   });
 
   it('자신이 지불하지 않아도 될 항목이 있는 참여자는 체크하지 않을 시, 그 항목에 대해 완료로 취급된다', () => {
