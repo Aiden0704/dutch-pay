@@ -19,7 +19,7 @@ function createTestRoom(overrides: Partial<Room> = {}): Room {
 // 2. 해당 정산방이 완료 / 미완료 경우
 
 describe('calculateRoomListItems', () => {
-  it('자신이 방장인 경우 role이 host로 변환된다', () => {
+  it('내가 만든 방에서는 자신은 방장으로 표시된다', () => {
     // Arrange - Given
     const viewerId = 777;
     const testRoom = createTestRoom();
@@ -31,7 +31,7 @@ describe('calculateRoomListItems', () => {
     expect(result[0].role).toBe('host');
   });
 
-  it('자신이 멤버인 경우 role이 member로 변환된다', () => {
+  it('다른 사람이 만든 방에 참여하면 멤버로 표시된다', () => {
     // Arrange - Given
     const viewerId = 123;
 
@@ -50,7 +50,7 @@ describe('calculateRoomListItems', () => {
     expect(result[0].role).toBe('member');
   });
 
-  it('방장이 아닌 참여자 전원이 선택을 완료하면 isCompleted가 true가 된다', () => {
+  it('방장을 제외한 모든 참여자가 결제를 완료하면 정산이 완료된 것으로 처리된다', () => {
     // Given
     const viewerId = 1;
 
@@ -80,7 +80,7 @@ describe('calculateRoomListItems', () => {
     expect(result[0].isCompleted).toBe(true);
   });
 
-  it('방장이 아닌 참여자 전원이 선택을 완료하지 않으면 isCompleted가 false가 된다', () => {
+  it('방장을 제외한 참여자 중 결제를 완료하지 않은 멤버가 있다면 정산이 완료되지 않은 것으로 처리된다', () => {
     // Given
     const viewerId = 1;
 
@@ -107,6 +107,51 @@ describe('calculateRoomListItems', () => {
     const result = calculateRoomListItems([testRoom], viewerId);
 
     // Then
+    expect(result[0].isCompleted).toBe(false);
+  });
+
+  it('참여자가 방장 혼자라면 정산이 완료되지 않은 것으로 처리된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          user_id: 1,
+        },
+      ],
+
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '삼겹살',
+          amount: 15000,
+          quantity: 3,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 1, participant_id: 1, paid: false }],
+        },
+      ],
+    });
+
+    const result = calculateRoomListItems([testRoom], viewerId);
+    expect(result[0].isCompleted).toBe(false);
+  });
+
+  it('참여자는 있지만 항목이 하나도 없으면 정산이 완료되지 않은 것으로 처리된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1 },
+        { id: 2, room_id: '방고유ID', user_id: 2 },
+      ],
+    });
+
+    const result = calculateRoomListItems([testRoom], viewerId);
     expect(result[0].isCompleted).toBe(false);
   });
 
@@ -143,7 +188,7 @@ describe('calculateRoomListItems', () => {
     expect(result[0].completedParticipantCount).toBe(3);
   });
 
-  it('내가 체크한 항목만 myAmount 계산에 반영한다', () => {
+  it('자신이 체크한 항목의 금액만 자신이 낼 금액에 포함된다', () => {
     const viewerId = 999;
 
     const testRoom = createTestRoom({
@@ -187,7 +232,7 @@ describe('calculateRoomListItems', () => {
     expect(result[0].myAmount).toBe(11000);
   });
 
-  it('viewerId가 참여자 목록에 없으면 에러를 던진다', () => {
+  it('조회하는 사용자가 참여자 목록에 없는 방을 조회하면 에러를 던진다', () => {
     const viewerId = 999;
 
     const testRoom = createTestRoom({

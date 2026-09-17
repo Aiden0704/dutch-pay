@@ -108,9 +108,12 @@ export function calculateRoomListItems(
     const completedParticipantCount = nonHostParticipants.filter(
       (participant) => isParticipantSettled(participant.id, room.items)
     ).length;
-    const isCompleted = nonHostParticipants.every((participant) =>
-      isParticipantSettled(participant.id, room.items)
-    );
+    const isCompleted =
+      nonHostParticipants.length > 0 &&
+      room.items.length > 0 &&
+      nonHostParticipants.every((participant) =>
+        isParticipantSettled(participant.id, room.items)
+      );
 
     return {
       title,
