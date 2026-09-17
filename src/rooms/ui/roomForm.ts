@@ -64,7 +64,9 @@ export async function renderRoomForm(
     options.onCancel();
   });
 
-  const submitButton = root.querySelector('#submit-button');
+  const submitButton = root.querySelector(
+    '#submit-button'
+  ) as HTMLButtonElement;
   submitButton.addEventListener('click', async () => {
     const inputName = root.querySelector('#room-name') as HTMLInputElement;
     const roomName = inputName.value.trim();
@@ -76,6 +78,10 @@ export async function renderRoomForm(
     }
 
     try {
+      submitButton.classList.add(styles['submitButton-loading']);
+      submitButton.disabled = true;
+      submitButton.textContent = '생성중';
+
       const response = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,10 +90,18 @@ export async function renderRoomForm(
 
       if (!response.ok) {
         errorElement.textContent = '방 생성에 실패하였습니다';
+        submitButton.classList.remove(styles['submitButton-loading']);
+        submitButton.disabled = false;
+        submitButton.textContent = '만들기';
+
         return;
       }
     } catch {
       errorElement.textContent = '방 생성에 실패하였습니다';
+      submitButton.classList.remove(styles['submitButton-loading']);
+      submitButton.disabled = false;
+      submitButton.textContent = '만들기';
+
       return;
     }
 
