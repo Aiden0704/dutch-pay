@@ -31,6 +31,7 @@ interface ItemCheck {
 }
 
 export interface RoomListItem {
+  id: string;
   title: string;
   role: 'host' | 'member';
   isCompleted: boolean;
@@ -95,6 +96,7 @@ export function calculateRoomListItems(
       throw new Error(`viewerId(${viewerId})가 참여자 목록에 없는 방입니다`);
     }
 
+    const id = room.id;
     const title = room.name;
     const createdAt = room.created_at;
     const role = room.host_id === viewerId ? 'host' : 'member';
@@ -119,6 +121,7 @@ export function calculateRoomListItems(
       );
 
     return {
+      id,
       title,
       createdAt,
       role,
