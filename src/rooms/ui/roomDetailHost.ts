@@ -14,6 +14,15 @@ interface RenderRoomDetailHostHTMLParams {
   participants: RoomDetailParticipant[];
 }
 
+interface RoomDetailResponse {
+  name: string;
+  host_id: number;
+  participants: {
+    user_id: number;
+    users: { nickname: string };
+  }[];
+}
+
 export function renderRoomDetailHostHTML({
   roomName,
   hostName,
@@ -40,7 +49,7 @@ export function renderRoomDetailHostHTML({
     <div class="${styles.page}">
       <header class="${styles.header}">
         <div class="${styles.headerLeft}">
-          <button class="${styles.backButton}" type="button" aria-label="뒤로가기">‹</button>
+          <button id="back-button" class="${styles.backButton}" type="button" aria-label="뒤로가기">‹</button>
           <h1 class="${styles.title}">${escapeHtml(roomName)}</h1>
         </div>
         <button class="${styles.shareButton}" type="button">링크 공유</button>
@@ -74,4 +83,53 @@ export function renderRoomDetailHostHTML({
       </div>
     </div>
   `;
+}
+
+export async function renderRoomDetailHost(
+  root: HTMLElement,
+  id: string,
+  navigate: (path: string) => void
+): Promise<void> {
+  try {
+    const response = await fetch(`/api/rooms/${id}`);
+
+    if (!response.ok) {
+      throw new Error('정산방 상세 내용을 불러오지 못했습니다');
+    }
+
+    const data = (await response.json()) as RoomDetailResponse;
+
+    const roomName = data.name;
+    const hostUser = data.participants.find((participant) => {
+      return participant.user_id === data.host_id;
+    });
+
+    if (!hostUser) {
+      throw new Error('방장이 참여자 목록에 없습니다');
+    }
+
+    const hostName = hostUser.users.nickname;
+    const totalAmount = 0;
+    const myTotal = 0;
+    const participants = data.participants.map((participant) => {
+      return { name: participant.users.nickname, isCompleted: false };
+    });
+
+    root.innerHTML = renderRoomDetailHostHTML({
+      roomName,
+      hostName,
+      totalAmount,
+      myTotal,
+      participants,
+    });
+
+    const backButton = root.querySelector('#back-button');
+    backButton.addEventListener('click', () => {
+      navigate('/rooms');
+    });
+  } catch {
+    root.innerHTML = '정산방 상세 화면 불러오기에 실패하였습니다';
+  }
+
+  return;
 }
