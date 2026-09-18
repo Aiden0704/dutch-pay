@@ -3,7 +3,10 @@ import { escapeHtml } from '../../shared/escapeHtml';
 import { renderRoomForm } from './roomForm';
 import styles from './rooms.module.css';
 
-export async function renderRooms(root: HTMLElement): Promise<void> {
+export async function renderRooms(
+  root: HTMLElement,
+  navigate: (path: string) => void
+): Promise<void> {
   let roomListItems: RoomListItem[];
 
   try {
@@ -29,7 +32,7 @@ export async function renderRooms(root: HTMLElement): Promise<void> {
       ? `<p class="${styles.empty}">아직 정산방이 없어요</p>`
       : roomListItems
           .map((item) => {
-            return `<div class="${styles.card}">
+            return `<div class="${styles.card}" data-room-id="${item.id}">
   <div class="${styles.cardTitleRow}">
     <h3 class="${styles.cardTitle}">${escapeHtml(item.title)}</h3>
     <span class="${styles.roleBadge}">${item.role === 'host' ? '방장' : '참여중'}</span>
@@ -67,8 +70,11 @@ export async function renderRooms(root: HTMLElement): Promise<void> {
   const createButton = root.querySelector('#create-button');
   createButton.addEventListener('click', () => {
     renderRoomForm(root, {
-      onCancel: () => renderRooms(root),
-      onCreated: () => renderRooms(root),
+      onCancel: () => renderRooms(root, navigate),
+      onCreated: (id) => navigate('/rooms/' + id),
+    });
+  });
+
   const cards = root.querySelectorAll<HTMLElement>(`.${styles.card}`);
   cards.forEach((card) => {
     card.addEventListener('click', () => {

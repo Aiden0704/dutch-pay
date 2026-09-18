@@ -34,7 +34,7 @@ export function renderRoomFormHTML(hostName: string): string {
 
 export async function renderRoomForm(
   root: HTMLElement,
-  options: { onCancel: () => void; onCreated: () => void }
+  options: { onCancel: () => void; onCreated: (id: string) => void }
 ): Promise<void> {
   let nickname: string;
 
@@ -96,6 +96,9 @@ export async function renderRoomForm(
 
         return;
       }
+
+      const data = await response.json();
+      options.onCreated(data.id);
     } catch {
       errorElement.textContent = '방 생성에 실패하였습니다';
       submitButton.classList.remove(styles['submitButton-loading']);
@@ -104,7 +107,5 @@ export async function renderRoomForm(
 
       return;
     }
-
-    options.onCreated();
   });
 }
