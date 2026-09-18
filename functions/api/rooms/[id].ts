@@ -29,7 +29,7 @@ export async function onRequestGet({
 
   const { data, error: roomError } = await supabase
     .from('rooms')
-    .select('*, participants(*), items(*, item_checks(*))')
+    .select('*, participants(*, users(nickname)), items(*, item_checks(*))')
     .eq('id', params.id)
     .single();
 
