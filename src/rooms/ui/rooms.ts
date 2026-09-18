@@ -69,6 +69,10 @@ export async function renderRooms(root: HTMLElement): Promise<void> {
     renderRoomForm(root, {
       onCancel: () => renderRooms(root),
       onCreated: () => renderRooms(root),
+  const cards = root.querySelectorAll<HTMLElement>(`.${styles.card}`);
+  cards.forEach((card) => {
+    card.addEventListener('click', () => {
+      navigate(`/rooms/${card.dataset.roomId}`);
     });
   });
 }
