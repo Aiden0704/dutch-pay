@@ -32,10 +32,11 @@ export async function onRequestGet({
   }
 
   const supabase = createSupabaseClient(env);
+  const select = '*, participants(*, users(nickname)), items(*, item_checks(*))';
 
   const { data, error: roomError } = await supabase
     .from('rooms')
-    .select('*, participants(*, users(nickname)), items(*, item_checks(*))')
+    .select(select)
     .eq('id', params.id)
     .single();
 
@@ -52,19 +53,34 @@ export async function onRequestGet({
     throw new Error(`정산방 조회에 실패하였습니다: ${JSON.stringify(roomError)}`);
   }
 
-  const room = data as Room;
+  let room = data as Room;
 
   const isParticipant = room.participants.find((participant) => {
     return viewerId === participant.user_id;
   });
 
   if (!isParticipant) {
-    return Response.json(
-      {
-        reason: '이 방의 참여자가 아닙니다',
-      },
-      { status: 403 }
-    );
+    const { error: joinError } = await supabase
+      .from('participants')
+      .insert({ room_id: params.id, user_id: viewerId });
+
+    if (joinError) {
+      throw new Error(`참여자 등록에 실패하였습니다: ${JSON.stringify(joinError)}`);
+    }
+
+    const { data: rejoined, error: rejoinError } = await supabase
+      .from('rooms')
+      .select(select)
+      .eq('id', params.id)
+      .single();
+
+    if (rejoinError) {
+      throw new Error(
+        `정산방 재조회에 실패하였습니다: ${JSON.stringify(rejoinError)}`
+      );
+    }
+
+    room = rejoined as Room;
   }
 
   const roomDetail = calculateRoomDetail(room, viewerId);
@@ -84,11 +100,37 @@ export async function onRequestGet({
     };
   });
 
+  const items = room.items.map((item) => {
+    const checkedParticipants = item.item_checks
+      .map((check) =>
+        rawParticipants.find(
+          (participant) => participant.id === check.participant_id
+        )
+      )
+      .filter((participant): participant is SupabaseParticipant => {
+        return participant !== undefined;
+      })
+      .map((participant) => ({
+        user_id: participant.user_id,
+        name: participant.users.nickname,
+      }));
+
+    return {
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      amount: item.amount,
+      checkedParticipants,
+    };
+  });
+
   return Response.json({
     name: room.name,
     host_id: room.host_id,
+    viewer_id: viewerId,
     totalAmount: roomDetail.totalAmount,
     myAmount: roomDetail.myAmount,
     participants,
+    items,
   });
 }
