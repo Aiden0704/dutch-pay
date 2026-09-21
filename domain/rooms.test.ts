@@ -339,6 +339,34 @@ describe('calculateRoomDetail', () => {
     ]);
   });
 
+  it('방장은 결제하지 않은 체크가 있어도 항상 완료로 표시된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1 },
+        { id: 2, room_id: '방고유ID', user_id: 2 },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '삼겹살',
+          amount: 15000,
+          quantity: 3,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 1, participant_id: 1, paid: false }],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+    const hostParticipant = result.participants.find((p) => p.user_id === 1);
+
+    expect(hostParticipant?.isCompleted).toBe(true);
+  });
+
   it('조회하는 사용자가 참여자 목록에 없는 방을 조회하면 에러를 던진다', () => {
     const viewerId = 999;
 
