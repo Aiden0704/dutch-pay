@@ -110,7 +110,10 @@ export function calculateRoomDetail(room: Room, viewerId: number): RoomDetail {
   const participants = room.participants.map((participant) => ({
     id: participant.id,
     user_id: participant.user_id,
-    isCompleted: isParticipantSettled(participant.id, room.items),
+    isCompleted:
+      participant.user_id === room.host_id
+        ? true
+        : isParticipantSettled(participant.id, room.items),
   }));
 
   return { totalAmount, myAmount, participants };
