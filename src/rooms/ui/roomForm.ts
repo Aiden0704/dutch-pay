@@ -2,6 +2,10 @@ import type { MeResponse } from '../../../shared-types/me';
 import { escapeHtml } from '../../shared/escapeHtml';
 import styles from './roomForm.module.css';
 
+interface CreateRoomResponse {
+  id: string;
+}
+
 export function renderRoomFormHTML(hostName: string): string {
   return `
     <div class="${styles.page}">
@@ -97,7 +101,7 @@ export async function renderRoomForm(
         return;
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as CreateRoomResponse;
       options.onCreated(data.id);
     } catch {
       errorElement.textContent = '방 생성에 실패하였습니다';
