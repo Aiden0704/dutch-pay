@@ -1,4 +1,5 @@
 import checkIcon from '../../assets/icons/check.svg?raw';
+import plusIcon from '../../assets/icons/plus.svg?raw';
 import trashIcon from '../../assets/icons/trash.svg?raw';
 import { escapeHtml } from '../../shared/escapeHtml';
 import styles from './itemChecklist.module.css';
@@ -14,11 +15,13 @@ export interface ChecklistItem {
 interface RenderItemChecklistHTMLParams {
   items: ChecklistItem[];
   viewerId: number;
+  canDelete: boolean;
 }
 
 export function renderItemChecklistHTML({
   items,
   viewerId,
+  canDelete,
 }: RenderItemChecklistHTMLParams): string {
   if (items.length === 0) {
     return `<div class="${styles.emptyState}">
@@ -67,7 +70,7 @@ export function renderItemChecklistHTML({
             <span class="${styles.amount}">${itemTotal.toLocaleString()}원</span>
             <span class="${styles.perPerson}" data-per-person>${perPersonText}</span>
           </div>
-          <button class="${styles.deleteButton}" type="button" data-delete-item aria-label="항목 삭제">${trashIcon}</button>
+          ${canDelete ? `<button class="${styles.deleteButton}" type="button" data-delete-item aria-label="항목 삭제">${trashIcon}</button>` : ''}
         </div>
       `;
     })
@@ -93,6 +96,7 @@ interface BindItemChecklistOptions {
   viewerName: string;
   onChange: () => void;
   onMyAmountDelta: (delta: number) => void;
+  onOwnCheckChange?: () => void;
 }
 
 export function bindItemChecklist(
@@ -103,6 +107,7 @@ export function bindItemChecklist(
     viewerName,
     onChange,
     onMyAmountDelta,
+    onOwnCheckChange,
   }: BindItemChecklistOptions
 ): void {
   async function setChecked(
@@ -146,11 +151,13 @@ export function bindItemChecklist(
       countElement.textContent = `${selectedCount}/${rows.length} 선택됨`;
     }
     if (iconElement) {
-      iconElement.textContent = selectedCount === rows.length ? '−' : '+';
+      iconElement.innerHTML = selectedCount === rows.length ? '−' : plusIcon;
     }
   }
 
   function setRowChecked(row: HTMLElement, checked: boolean) {
+    onOwnCheckChange?.();
+
     const total = Number(row.dataset.itemTotal ?? 0);
     const tagsContainer = row.querySelector('[data-tags]');
     const oldTagCount = tagsContainer?.children.length ?? 0;
