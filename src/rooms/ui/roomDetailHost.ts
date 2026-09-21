@@ -7,6 +7,7 @@ import {
   renderItemChecklistHTML,
   type ChecklistItem,
 } from './itemChecklist';
+import { renderRoomDetail, type RoomDetailResponse } from './roomDetail';
 import styles from './roomDetailHost.module.css';
 
 interface RoomDetailParticipant {
@@ -22,26 +23,6 @@ interface RenderRoomDetailHostHTMLParams {
   participants: RoomDetailParticipant[];
   items: ChecklistItem[];
   viewerId: number;
-}
-
-interface RoomDetailResponse {
-  name: string;
-  host_id: number;
-  viewer_id: number;
-  totalAmount: number;
-  myAmount: number;
-  participants: {
-    user_id: number;
-    users: { nickname: string };
-    isCompleted: boolean;
-  }[];
-  items: {
-    id: number;
-    name: string;
-    quantity: number;
-    amount: number;
-    checkedParticipants: { user_id: number; name: string }[];
-  }[];
 }
 
 export function renderRoomDetailHostHTML({
@@ -68,7 +49,11 @@ export function renderRoomDetailHostHTML({
     })
     .join('');
 
-  const itemListHtml = renderItemChecklistHTML({ items, viewerId });
+  const itemListHtml = renderItemChecklistHTML({
+    items,
+    viewerId,
+    canDelete: true,
+  });
 
   return `
     <div class="${styles.page}">
@@ -107,20 +92,13 @@ export function renderRoomDetailHostHTML({
   `;
 }
 
-export async function renderRoomDetailHost(
+export function renderRoomDetailHost(
   root: HTMLElement,
+  data: RoomDetailResponse,
   id: string,
   navigate: (path: string) => void
-): Promise<void> {
+): void {
   try {
-    const response = await fetch(`/api/rooms/${id}`);
-
-    if (!response.ok) {
-      throw new Error('정산방 상세 내용을 불러오지 못했습니다');
-    }
-
-    const data = (await response.json()) as RoomDetailResponse;
-
     const roomName = data.name;
     const hostUser = data.participants.find((participant) => {
       return participant.user_id === data.host_id;
@@ -188,7 +166,7 @@ export async function renderRoomDetailHost(
     addItemButton.addEventListener('click', () => {
       renderAddItemSheet(root, id, {
         onCancel: () => {},
-        onAdded: () => renderRoomDetailHost(root, id, navigate),
+        onAdded: () => renderRoomDetail(root, id, navigate),
       });
     });
 
@@ -196,7 +174,7 @@ export async function renderRoomDetailHost(
       roomId: id,
       viewerId,
       viewerName,
-      onChange: () => renderRoomDetailHost(root, id, navigate),
+      onChange: () => renderRoomDetail(root, id, navigate),
       onMyAmountDelta: (delta) => {
         const myTotalElement = root.querySelector<HTMLElement>(
           '#my-total-amount'

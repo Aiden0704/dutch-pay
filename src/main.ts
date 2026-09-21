@@ -2,7 +2,7 @@ import './style.css';
 import { renderLogin } from './login/ui/login';
 import { renderRooms } from './rooms/ui/rooms';
 import { renderRoute, type Route } from './shared/router';
-import { renderRoomDetailHost } from './rooms/ui/roomDetailHost';
+import { renderRoomDetail } from './rooms/ui/roomDetail';
 import type { MeResponse } from '../shared-types/me';
 
 const PATHS = {
@@ -23,7 +23,7 @@ const route: Route[] = [
   { pattern: PATHS.ROOMS, render: (root) => renderRooms(root, navigate) },
   {
     pattern: PATHS.ROOMS_DETAIL,
-    render: (root, params) => renderRoomDetailHost(root, params.id, navigate),
+    render: (root, params) => renderRoomDetail(root, params.id, navigate),
   },
 ];
 
