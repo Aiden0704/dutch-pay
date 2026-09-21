@@ -32,6 +32,10 @@ function navigate(path: string) {
   renderRoute(root, path, route);
 }
 
+window.addEventListener('popstate', () => {
+  renderRoute(root, window.location.pathname, route);
+});
+
 try {
   const response = await fetch('/api/me');
   const data = (await response.json()) as MeResponse;
