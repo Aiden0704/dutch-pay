@@ -17,9 +17,12 @@ interface RenderRoomDetailHostHTMLParams {
 interface RoomDetailResponse {
   name: string;
   host_id: number;
+  totalAmount: number;
+  myAmount: number;
   participants: {
     user_id: number;
     users: { nickname: string };
+    isCompleted: boolean;
   }[];
 }
 
@@ -109,10 +112,13 @@ export async function renderRoomDetailHost(
     }
 
     const hostName = hostUser.users.nickname;
-    const totalAmount = 0;
-    const myTotal = 0;
+    const totalAmount = data.totalAmount;
+    const myTotal = data.myAmount;
     const participants = data.participants.map((participant) => {
-      return { name: participant.users.nickname, isCompleted: false };
+      return {
+        name: participant.users.nickname,
+        isCompleted: participant.isCompleted,
+      };
     });
 
     root.innerHTML = renderRoomDetailHostHTML({
