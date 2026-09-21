@@ -11,6 +11,7 @@ interface Participant {
   id: number;
   room_id: string;
   user_id: number;
+  is_completed: boolean;
 }
 
 interface Item {
@@ -52,18 +53,6 @@ function calculateOwedAmount(participantId: number, items: Item[]): number {
     }
     return sum + (item.amount * item.quantity) / item.item_checks.length;
   }, 0);
-}
-
-function isParticipantSettled(participantId: number, items: Item[]): boolean {
-  return items.every((item) => {
-    const myChecks = findParticipantCheck(item, participantId);
-
-    if (myChecks) {
-      return myChecks.paid;
-    } else {
-      return true;
-    }
-  });
 }
 
 function calculateTotalAmount(items: Item[]): number {
@@ -111,9 +100,7 @@ export function calculateRoomDetail(room: Room, viewerId: number): RoomDetail {
     id: participant.id,
     user_id: participant.user_id,
     isCompleted:
-      participant.user_id === room.host_id
-        ? true
-        : isParticipantSettled(participant.id, room.items),
+      participant.user_id === room.host_id ? true : participant.is_completed,
   }));
 
   return { totalAmount, myAmount, participants };
@@ -144,16 +131,13 @@ export function calculateRoomListItems(
     );
     const completedParticipantCount =
       room.items.length > 0
-        ? nonHostParticipants.filter((participant) =>
-            isParticipantSettled(participant.id, room.items)
-          ).length
+        ? nonHostParticipants.filter((participant) => participant.is_completed)
+            .length
         : 0;
     const isCompleted =
       nonHostParticipants.length > 0 &&
       room.items.length > 0 &&
-      nonHostParticipants.every((participant) =>
-        isParticipantSettled(participant.id, room.items)
-      );
+      nonHostParticipants.every((participant) => participant.is_completed);
 
     return {
       id,
