@@ -1,7 +1,13 @@
 import { getCookie } from '../../_shared/http';
 import { getUserIdFromToken, type SessionEnv } from '../../_shared/session';
 import { createSupabaseClient, type SupabaseEnv } from '../../_shared/supabase';
-import { type Room } from '../../../domain/rooms';
+import { calculateRoomDetail, type Room } from '../../../domain/rooms';
+
+interface SupabaseParticipant {
+  id: number;
+  user_id: number;
+  users: { nickname: string };
+}
 
 export async function onRequestGet({
   request,
@@ -57,5 +63,28 @@ export async function onRequestGet({
     );
   }
 
-  return Response.json(room);
+  const roomDetail = calculateRoomDetail(room, viewerId);
+  const rawParticipants = room.participants as unknown as SupabaseParticipant[];
+
+  const participants = rawParticipants.map((participant) => {
+    const detail = roomDetail.participants.find((p) => p.id === participant.id);
+
+    if (!detail) {
+      throw new Error('참여자 계산 결과를 찾을 수 없습니다');
+    }
+
+    return {
+      user_id: participant.user_id,
+      users: participant.users,
+      isCompleted: detail.isCompleted,
+    };
+  });
+
+  return Response.json({
+    name: room.name,
+    host_id: room.host_id,
+    totalAmount: roomDetail.totalAmount,
+    myAmount: roomDetail.myAmount,
+    participants,
+  });
 }
