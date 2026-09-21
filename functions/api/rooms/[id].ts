@@ -85,8 +85,13 @@ export async function onRequestGet({
 
   const roomDetail = calculateRoomDetail(room, viewerId);
   const rawParticipants = room.participants as unknown as SupabaseParticipant[];
+  const sortedParticipants = [...rawParticipants].sort((a, b) => {
+    if (a.user_id === room.host_id) return -1;
+    if (b.user_id === room.host_id) return 1;
+    return a.id - b.id;
+  });
 
-  const participants = rawParticipants.map((participant) => {
+  const participants = sortedParticipants.map((participant) => {
     const detail = roomDetail.participants.find((p) => p.id === participant.id);
 
     if (!detail) {
