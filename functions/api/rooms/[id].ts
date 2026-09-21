@@ -39,13 +39,17 @@ export async function onRequestGet({
     .eq('id', params.id)
     .single();
 
-  if (roomError) {
+  if (roomError && roomError.code === 'PGRST116') {
     return Response.json(
       {
         reason: '조회된 방이 없습니다',
       },
       { status: 404 }
     );
+  }
+
+  if (roomError) {
+    throw new Error(`정산방 조회에 실패하였습니다: ${JSON.stringify(roomError)}`);
   }
 
   const room = data as Room;
