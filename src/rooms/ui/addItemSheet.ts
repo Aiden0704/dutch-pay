@@ -83,8 +83,12 @@ export function renderAddItemSheet(
     '#item-form-error'
   ) as HTMLElement;
 
-  function close() {
-    overlay.remove();
+  function close(after?: () => void) {
+    overlay.classList.add(styles.closing);
+    setTimeout(() => {
+      overlay.remove();
+      after?.();
+    }, 200);
   }
 
   function updateSubmitButton() {
@@ -94,13 +98,11 @@ export function renderAddItemSheet(
   }
 
   overlay.querySelector('#close-button')?.addEventListener('click', () => {
-    close();
-    options.onCancel();
+    close(() => options.onCancel());
   });
 
   overlay.querySelector('#cancel-button')?.addEventListener('click', () => {
-    close();
-    options.onCancel();
+    close(() => options.onCancel());
   });
 
   overlay.querySelector('#add-row-button')?.addEventListener('click', () => {
@@ -136,8 +138,7 @@ export function renderAddItemSheet(
         throw new Error(data.reason ?? '항목 추가에 실패하였습니다');
       }
 
-      close();
-      options.onAdded();
+      close(() => options.onAdded());
     } catch (error) {
       errorElement.textContent =
         error instanceof Error ? error.message : '항목 추가에 실패하였습니다';
