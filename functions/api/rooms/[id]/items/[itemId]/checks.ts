@@ -97,11 +97,14 @@ export async function onRequestPost({
     return Response.json({ reason: '항목을 찾을 수 없습니다' }, { status: 404 });
   }
 
-  const { error: insertError } = await supabase.from('item_checks').insert({
-    item_id: params.itemId,
-    participant_id: resolved.participantId,
-    paid: false,
-  });
+  const { error: insertError } = await supabase.from('item_checks').upsert(
+    {
+      item_id: params.itemId,
+      participant_id: resolved.participantId,
+      paid: false,
+    },
+    { onConflict: 'item_id,participant_id', ignoreDuplicates: true }
+  );
 
   if (insertError) {
     throw new Error(`체크에 실패하였습니다: ${JSON.stringify(insertError)}`);
