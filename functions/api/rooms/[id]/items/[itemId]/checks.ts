@@ -52,6 +52,19 @@ async function resolveParticipantId(
   return { participantId: participant.id };
 }
 
+async function resetCompletion(env: Env, participantId: number): Promise<void> {
+  const supabase = createSupabaseClient(env);
+
+  const { error } = await supabase
+    .from('participants')
+    .update({ is_completed: false })
+    .eq('id', participantId);
+
+  if (error) {
+    throw new Error(`완료 상태 초기화에 실패하였습니다: ${JSON.stringify(error)}`);
+  }
+}
+
 export async function onRequestPost({
   request,
   env,
@@ -94,6 +107,8 @@ export async function onRequestPost({
     throw new Error(`체크에 실패하였습니다: ${JSON.stringify(insertError)}`);
   }
 
+  await resetCompletion(env, resolved.participantId);
+
   return Response.json({}, { status: 201 });
 }
 
@@ -123,6 +138,8 @@ export async function onRequestDelete({
   if (deleteError) {
     throw new Error(`체크 해제에 실패하였습니다: ${JSON.stringify(deleteError)}`);
   }
+
+  await resetCompletion(env, resolved.participantId);
 
   return Response.json({});
 }
