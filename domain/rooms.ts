@@ -84,6 +84,38 @@ function findParticipantCheck(
   );
 }
 
+export interface RoomDetailParticipant {
+  id: number;
+  user_id: number;
+  isCompleted: boolean;
+}
+
+export interface RoomDetail {
+  totalAmount: number;
+  myAmount: number;
+  participants: RoomDetailParticipant[];
+}
+
+export function calculateRoomDetail(room: Room, viewerId: number): RoomDetail {
+  const myParticipant = room.participants.find(
+    (participant) => participant.user_id === viewerId
+  );
+
+  if (!myParticipant) {
+    throw new Error(`viewerId(${viewerId})가 참여자 목록에 없는 방입니다`);
+  }
+
+  const totalAmount = calculateTotalAmount(room.items);
+  const myAmount = calculateOwedAmount(myParticipant.id, room.items);
+  const participants = room.participants.map((participant) => ({
+    id: participant.id,
+    user_id: participant.user_id,
+    isCompleted: isParticipantSettled(participant.id, room.items),
+  }));
+
+  return { totalAmount, myAmount, participants };
+}
+
 export function calculateRoomListItems(
   rooms: Room[],
   viewerId: number
