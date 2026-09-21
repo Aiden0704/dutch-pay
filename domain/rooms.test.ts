@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateRoomListItems, type Room } from './rooms';
+import { calculateRoomDetail, calculateRoomListItems, type Room } from './rooms';
 
 function createTestRoom(overrides: Partial<Room> = {}): Room {
   const defaultRoom: Room = {
@@ -242,5 +242,111 @@ describe('calculateRoomListItems', () => {
     });
 
     expect(() => calculateRoomListItems([testRoom], viewerId)).toThrow();
+  });
+});
+
+describe('calculateRoomDetail', () => {
+  it('전체 항목 금액의 합계가 계산된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1 },
+        { id: 2, room_id: '방고유ID', user_id: 2 },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '삼겹살',
+          amount: 15000,
+          quantity: 3,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 1, participant_id: 2, paid: true }],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.totalAmount).toBe(45000);
+  });
+
+  it('내가 체크한 항목의 금액만 내가 낼 금액에 포함된다', () => {
+    const viewerId = 999;
+
+    const testRoom = createTestRoom({
+      host_id: 111,
+      participants: [
+        { id: 123, room_id: '방고유ID', user_id: 111 },
+        { id: 345, room_id: '방고유ID', user_id: 999 },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '국밥',
+          amount: 11000,
+          quantity: 1,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 1, participant_id: 345, paid: true }],
+        },
+        {
+          id: 2,
+          room_id: '방고유ID',
+          name: '수육',
+          amount: 23000,
+          quantity: 1,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 2, participant_id: 123, paid: true }],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.myAmount).toBe(11000);
+  });
+
+  it('참여자별로 자신이 체크한 항목을 모두 결제했는지 여부가 계산된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1 },
+        { id: 2, room_id: '방고유ID', user_id: 2 },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '삼겹살',
+          amount: 15000,
+          quantity: 3,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 1, participant_id: 2, paid: false }],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.participants).toEqual([
+      { id: 1, user_id: 1, isCompleted: true },
+      { id: 2, user_id: 2, isCompleted: false },
+    ]);
+  });
+
+  it('조회하는 사용자가 참여자 목록에 없는 방을 조회하면 에러를 던진다', () => {
+    const viewerId = 999;
+
+    const testRoom = createTestRoom({
+      host_id: 123,
+      participants: [{ id: 111, room_id: '방고유ID', user_id: 123 }],
+    });
+
+    expect(() => calculateRoomDetail(testRoom, viewerId)).toThrow();
   });
 });
