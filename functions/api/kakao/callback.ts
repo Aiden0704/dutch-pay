@@ -3,7 +3,11 @@ import { exchangeCodeForKakaoUser } from './kakao-oauth';
 import { createSupabaseClient } from '../../_shared/supabase';
 import { findOrCreateUser } from './repository';
 import { createJwtToken } from '../../_shared/session';
-import { redirectWithCookie, getCookie } from '../../_shared/http';
+import {
+  redirectWithCookie,
+  getCookie,
+  isSafeRedirectPath,
+} from '../../_shared/http';
 
 export async function onRequestGet({
   request,
@@ -31,11 +35,14 @@ export async function onRequestGet({
     const user = await findOrCreateUser(kakaoUser, supabase);
     const jwtToken = await createJwtToken(user.id, env);
 
+    const redirectTo = getCookie(request, 'redirect_to');
+
     return redirectWithCookie({
-      location: '/',
+      location: isSafeRedirectPath(redirectTo) ? redirectTo : '/',
       cookieName: 'token',
       cookieValue: jwtToken,
       maxAge: 604800,
+      extraCookie: { name: 'redirect_to', value: '', maxAge: 0 },
     });
   } catch {
     return Response.redirect(

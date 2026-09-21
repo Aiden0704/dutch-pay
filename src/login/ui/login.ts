@@ -10,6 +10,7 @@ const infoRows = [
 export function renderLogin(root: HTMLElement) {
   const searchParams = new URLSearchParams(window.location.search);
   const error = searchParams.get('error');
+  const redirect = searchParams.get('redirect');
 
   const errorMessage =
     error === 'login_failed'
@@ -50,6 +51,8 @@ export function renderLogin(root: HTMLElement) {
 
   const kakaoButton = root.querySelector('#kakao-button');
   kakaoButton.addEventListener('click', () => {
-    window.location.href = '/api/kakao/login';
+    window.location.href = redirect
+      ? `/api/kakao/login?redirect=${encodeURIComponent(redirect)}`
+      : '/api/kakao/login';
   });
 }
