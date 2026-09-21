@@ -36,18 +36,37 @@ window.addEventListener('popstate', () => {
   renderRoute(root, window.location.pathname, route);
 });
 
+function goToLogin() {
+  const currentPath = window.location.pathname;
+  const searchParams = new URLSearchParams(window.location.search);
+
+  if (currentPath !== PATHS.LOGIN) {
+    searchParams.set('redirect', currentPath);
+  }
+
+  const query = searchParams.toString();
+  history.replaceState({}, '', query ? `${PATHS.LOGIN}?${query}` : PATHS.LOGIN);
+  renderRoute(root, PATHS.LOGIN, route);
+}
+
 try {
   const response = await fetch('/api/me');
   const data = (await response.json()) as MeResponse;
 
   if (data.loggedIn === true) {
-    history.replaceState({}, '', PATHS.ROOMS);
-    renderRoute(root, PATHS.ROOMS, route);
+    const currentPath = window.location.pathname;
+    const targetPath = currentPath === PATHS.LOGIN ? PATHS.ROOMS : currentPath;
+
+    history.replaceState({}, '', targetPath);
+    const matched = renderRoute(root, targetPath, route);
+
+    if (!matched) {
+      history.replaceState({}, '', PATHS.ROOMS);
+      renderRoute(root, PATHS.ROOMS, route);
+    }
   } else {
-    history.replaceState({}, '', PATHS.LOGIN + window.location.search);
-    renderRoute(root, PATHS.LOGIN, route);
+    goToLogin();
   }
 } catch {
-  history.replaceState({}, '', PATHS.LOGIN + window.location.search);
-  renderRoute(root, PATHS.LOGIN, route);
+  goToLogin();
 }
