@@ -30,7 +30,7 @@ export function renderItemChecklistHTML({
   const selectedCount = items.filter((item) =>
     item.checkedParticipants.some((p) => p.user_id === viewerId)
   ).length;
-  const selectAllIcon = selectedCount === items.length ? '−' : '+';
+  const selectAllIcon = selectedCount === items.length ? '−' : plusIcon;
 
   const rowsHtml = items
     .map((item) => {
