@@ -13,10 +13,12 @@
 }
 
 .backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: none;
-  font-size: 22px;
-  line-height: 1;
+  font-size: 20px;
   cursor: pointer;
   color: var(--text-primary);
 }

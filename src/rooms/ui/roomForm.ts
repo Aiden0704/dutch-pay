@@ -1,3 +1,4 @@
+import backIcon from '../../assets/icons/back.svg?raw';
 import type { MeResponse } from '../../../shared-types/me';
 import { escapeHtml } from '../../shared/escapeHtml';
 import styles from './roomForm.module.css';
@@ -10,7 +11,7 @@ export function renderRoomFormHTML(hostName: string): string {
   return `
     <div class="${styles.page}">
       <header class="${styles.header}">
-        <button id="back-button" class="${styles.backButton}" type="button" aria-label="뒤로가기">‹</button>
+        <button id="back-button" class="${styles.backButton}" type="button" aria-label="뒤로가기">${backIcon}</button>
         <h1 class="${styles.title}">새 정산방 만들기</h1>
       </header>
 
