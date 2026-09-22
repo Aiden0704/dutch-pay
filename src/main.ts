@@ -1,4 +1,5 @@
 import './style.css';
+import { renderAccountSetup } from './account/ui/accountSetup';
 import { renderLogin } from './login/ui/login';
 import { renderRooms } from './rooms/ui/rooms';
 import { renderRoute, type Route } from './shared/router';
@@ -9,6 +10,7 @@ const PATHS = {
   LOGIN: '/login',
   ROOMS: '/rooms',
   ROOMS_DETAIL: '/rooms/:id',
+  ACCOUNT_SETUP: '/account-setup',
 } as const;
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -24,6 +26,10 @@ const route: Route[] = [
   {
     pattern: PATHS.ROOMS_DETAIL,
     render: (root, params) => renderRoomDetail(root, params.id, navigate),
+  },
+  {
+    pattern: PATHS.ACCOUNT_SETUP,
+    render: (root) => renderAccountSetup(root, navigate),
   },
 ];
 
@@ -56,13 +62,21 @@ try {
   if (data.loggedIn === true) {
     const currentPath = window.location.pathname;
     const targetPath = currentPath === PATHS.LOGIN ? PATHS.ROOMS : currentPath;
+    const needsAccountSetup = !data.user.bank_name || !data.user.account_number;
 
-    history.replaceState({}, '', targetPath);
-    const matched = renderRoute(root, targetPath, route);
+    if (needsAccountSetup && targetPath !== PATHS.ACCOUNT_SETUP) {
+      const accountSetupPath = `${PATHS.ACCOUNT_SETUP}?redirect=${encodeURIComponent(targetPath)}`;
 
-    if (!matched) {
-      history.replaceState({}, '', PATHS.ROOMS);
-      renderRoute(root, PATHS.ROOMS, route);
+      history.replaceState({}, '', accountSetupPath);
+      renderRoute(root, PATHS.ACCOUNT_SETUP, route);
+    } else {
+      history.replaceState({}, '', targetPath);
+      const matched = renderRoute(root, targetPath, route);
+
+      if (!matched) {
+        history.replaceState({}, '', PATHS.ROOMS);
+        renderRoute(root, PATHS.ROOMS, route);
+      }
     }
   } else {
     goToLogin();
