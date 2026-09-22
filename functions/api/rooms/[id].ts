@@ -6,7 +6,11 @@ import { calculateRoomDetail, type Room } from '../../../domain/rooms';
 interface SupabaseParticipant {
   id: number;
   user_id: number;
-  users: { nickname: string };
+  users: {
+    nickname: string;
+    bank_name: string | null;
+    account_number: string | null;
+  };
 }
 
 export async function onRequestGet({
@@ -32,7 +36,8 @@ export async function onRequestGet({
   }
 
   const supabase = createSupabaseClient(env);
-  const select = '*, participants(*, users(nickname)), items(*, item_checks(*))';
+  const select =
+    '*, participants(*, users(nickname, bank_name, account_number)), items(*, item_checks(*))';
 
   const { data, error: roomError } = await supabase
     .from('rooms')
@@ -87,6 +92,9 @@ export async function onRequestGet({
 
   const roomDetail = calculateRoomDetail(room, viewerId);
   const rawParticipants = room.participants as unknown as SupabaseParticipant[];
+  const hostParticipant = rawParticipants.find(
+    (participant) => participant.user_id === room.host_id
+  );
   const sortedParticipants = [...rawParticipants].sort((a, b) => {
     if (a.user_id === room.host_id) return -1;
     if (b.user_id === room.host_id) return 1;
@@ -140,6 +148,8 @@ export async function onRequestGet({
     myAmount: roomDetail.myAmount,
     isSettled: roomDetail.isSettled,
     readyToSettle: roomDetail.readyToSettle,
+    hostBankName: hostParticipant?.users.bank_name ?? null,
+    hostAccountNumber: hostParticipant?.users.account_number ?? null,
     participants,
     items,
   });
