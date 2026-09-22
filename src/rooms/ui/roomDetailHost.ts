@@ -23,6 +23,7 @@ interface RenderRoomDetailHostHTMLParams {
   participants: RoomDetailParticipant[];
   items: ChecklistItem[];
   viewerId: number;
+  readyToSettle: boolean;
 }
 
 export function renderRoomDetailHostHTML({
@@ -33,11 +34,8 @@ export function renderRoomDetailHostHTML({
   participants,
   items,
   viewerId,
+  readyToSettle,
 }: RenderRoomDetailHostHTMLParams): string {
-  const allCompleted =
-    participants.length > 1 &&
-    participants.every((participant) => participant.isCompleted);
-
   const participantBadges = participants
     .map((participant) => {
       const completedClass = participant.isCompleted
@@ -86,7 +84,7 @@ export function renderRoomDetailHostHTML({
 
       <div class="${styles.footer}">
         <button id="add-item-button" class="${styles.addButton}" type="button">+ 항목 추가</button>
-        <button id="settle-button" class="${styles.completeButton}" type="button" ${allCompleted ? '' : 'disabled'}>정산 완료</button>
+        <button id="settle-button" class="${styles.completeButton}" type="button" ${readyToSettle ? '' : 'disabled'}>정산 완료</button>
       </div>
     </div>
   `;
@@ -137,6 +135,7 @@ export function renderRoomDetailHost(
       participants,
       items,
       viewerId,
+      readyToSettle: data.readyToSettle,
     });
 
     const backButton = root.querySelector('#back-button');

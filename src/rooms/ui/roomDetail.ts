@@ -9,6 +9,7 @@ export interface RoomDetailResponse {
   totalAmount: number;
   myAmount: number;
   isSettled: boolean;
+  readyToSettle: boolean;
   participants: {
     user_id: number;
     users: { nickname: string };
