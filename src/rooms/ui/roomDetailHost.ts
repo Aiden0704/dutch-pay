@@ -34,9 +34,9 @@ export function renderRoomDetailHostHTML({
   items,
   viewerId,
 }: RenderRoomDetailHostHTMLParams): string {
-  const allCompleted = participants.every(
-    (participant) => participant.isCompleted
-  );
+  const allCompleted =
+    participants.length > 1 &&
+    participants.every((participant) => participant.isCompleted);
 
   const participantBadges = participants
     .map((participant) => {
@@ -86,7 +86,7 @@ export function renderRoomDetailHostHTML({
 
       <div class="${styles.footer}">
         <button id="add-item-button" class="${styles.addButton}" type="button">+ 항목 추가</button>
-        <button class="${styles.completeButton}" type="button" ${allCompleted ? '' : 'disabled'}>정산 완료</button>
+        <button id="settle-button" class="${styles.completeButton}" type="button" ${allCompleted ? '' : 'disabled'}>정산 완료</button>
       </div>
     </div>
   `;
@@ -168,6 +168,27 @@ export function renderRoomDetailHost(
         onCancel: () => {},
         onAdded: () => renderRoomDetail(root, id, navigate),
       });
+    });
+
+    const settleButton =
+      root.querySelector<HTMLButtonElement>('#settle-button');
+    settleButton?.addEventListener('click', async () => {
+      settleButton.disabled = true;
+
+      try {
+        const response = await fetch(`/api/rooms/${id}/settle`, {
+          method: 'POST',
+        });
+
+        if (!response.ok) {
+          settleButton.disabled = false;
+          return;
+        }
+
+        renderRoomDetail(root, id, navigate);
+      } catch {
+        settleButton.disabled = false;
+      }
     });
 
     bindItemChecklist(root, {
