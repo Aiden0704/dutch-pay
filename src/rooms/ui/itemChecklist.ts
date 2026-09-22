@@ -224,10 +224,17 @@ export function bindItemChecklist(
         const isChecked = row.dataset.checked === 'true';
 
         setRowChecked(row, !isChecked);
-        const ok = await setChecked(itemId, !isChecked);
+
+        let ok = false;
+        try {
+          ok = await setChecked(itemId, !isChecked);
+        } catch {
+          ok = false;
+        }
 
         if (!ok) {
           setRowChecked(row, isChecked);
+          onChange();
           return;
         }
 
