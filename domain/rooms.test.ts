@@ -392,6 +392,81 @@ describe('calculateRoomDetail', () => {
     expect(() => calculateRoomDetail(testRoom, viewerId)).toThrow();
   });
 
+  it('나눠 떨어지지 않는 금액은 반올림되어 계산된다', () => {
+    const viewerId = 2;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
+        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: false },
+        { id: 3, room_id: '방고유ID', user_id: 3, is_completed: false },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '떡볶이',
+          amount: 10000,
+          quantity: 1,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [
+            { id: 1, item_id: 1, participant_id: 1, paid: false },
+            { id: 2, item_id: 1, participant_id: 2, paid: false },
+            { id: 3, item_id: 1, participant_id: 3, paid: false },
+          ],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.myAmount).toBe(3333);
+  });
+
+  it('항목이 없는 방은 참여자 전원이 완료해도 정산 준비가 되지 않은 것으로 처리된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
+        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: true },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.readyToSettle).toBe(false);
+  });
+
+  it('항목이 있고 참여자 전원이 완료하면 정산 준비가 된 것으로 처리된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
+        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: true },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '삼겹살',
+          amount: 15000,
+          quantity: 1,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 1, participant_id: 2, paid: false }],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.readyToSettle).toBe(true);
+  });
+
   it('방의 정산 완료 여부가 그대로 반영된다', () => {
     const viewerId = 1;
 

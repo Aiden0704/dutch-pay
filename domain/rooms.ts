@@ -46,7 +46,7 @@ export interface RoomListItem {
 }
 
 function calculateOwedAmount(participantId: number, items: Item[]): number {
-  return items.reduce((sum, item) => {
+  const rawAmount = items.reduce((sum, item) => {
     const myCheck = findParticipantCheck(item, participantId);
 
     if (!myCheck) {
@@ -54,6 +54,19 @@ function calculateOwedAmount(participantId: number, items: Item[]): number {
     }
     return sum + (item.amount * item.quantity) / item.item_checks.length;
   }, 0);
+
+  return Math.round(rawAmount);
+}
+
+function isRoomReadyToSettle(
+  nonHostParticipants: { is_completed: boolean }[],
+  itemCount: number
+): boolean {
+  return (
+    itemCount > 0 &&
+    nonHostParticipants.length > 0 &&
+    nonHostParticipants.every((participant) => participant.is_completed)
+  );
 }
 
 function calculateTotalAmount(items: Item[]): number {
@@ -85,6 +98,7 @@ export interface RoomDetail {
   totalAmount: number;
   myAmount: number;
   isSettled: boolean;
+  readyToSettle: boolean;
   participants: RoomDetailParticipant[];
 }
 
@@ -106,8 +120,21 @@ export function calculateRoomDetail(room: Room, viewerId: number): RoomDetail {
       participant.user_id === room.host_id ? true : participant.is_completed,
     amount: calculateOwedAmount(participant.id, room.items),
   }));
+  const nonHostParticipants = room.participants.filter(
+    (participant) => participant.user_id !== room.host_id
+  );
+  const readyToSettle = isRoomReadyToSettle(
+    nonHostParticipants,
+    room.items.length
+  );
 
-  return { totalAmount, myAmount, isSettled: room.is_settled, participants };
+  return {
+    totalAmount,
+    myAmount,
+    isSettled: room.is_settled,
+    readyToSettle,
+    participants,
+  };
 }
 
 export function calculateRoomListItems(
@@ -138,10 +165,7 @@ export function calculateRoomListItems(
         ? nonHostParticipants.filter((participant) => participant.is_completed)
             .length
         : 0;
-    const isCompleted =
-      nonHostParticipants.length > 0 &&
-      room.items.length > 0 &&
-      nonHostParticipants.every((participant) => participant.is_completed);
+    const isCompleted = isRoomReadyToSettle(nonHostParticipants, room.items.length);
 
     return {
       id,
