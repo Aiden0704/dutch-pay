@@ -178,7 +178,7 @@ export function bindItemChecklist(
     if (checked && !myTag) {
       tagsContainer?.insertAdjacentHTML(
         'beforeend',
-        `<span class="${styles.tag} ${styles['tag--me']}" data-user-id="${viewerId}">${escapeHtml(viewerName)}</span>`
+        `<span class="${styles.tag}" data-user-id="${viewerId}">${escapeHtml(viewerName)}</span>`
       );
     } else if (!checked && myTag) {
       myTag.remove();
