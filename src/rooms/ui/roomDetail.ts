@@ -10,6 +10,8 @@ export interface RoomDetailResponse {
   myAmount: number;
   isSettled: boolean;
   readyToSettle: boolean;
+  hostBankName: string | null;
+  hostAccountNumber: string | null;
   participants: {
     user_id: number;
     users: { nickname: string };
