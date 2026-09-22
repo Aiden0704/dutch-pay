@@ -1,11 +1,6 @@
 import { escapeHtml } from '../../shared/escapeHtml';
+import { isSafeRedirectPath } from '../../shared/isSafeRedirectPath';
 import styles from './accountSetup.module.css';
-
-const SAFE_REDIRECT_PATTERN = /^\/(?!\/)[A-Za-z0-9/_\-.?=&%]*$/;
-
-function isSafeRedirectPath(path: string | null): path is string {
-  return !!path && SAFE_REDIRECT_PATTERN.test(path);
-}
 
 const BANKS = [
   '국민은행',
@@ -34,10 +29,16 @@ export function renderAccountSetupHTML(
   currentBankName: string | null,
   currentAccountNumber: string | null
 ): string {
-  const bankOptions = BANKS.map(
-    (bank) =>
-      `<option value="${bank}" ${bank === currentBankName ? 'selected' : ''}>${bank}</option>`
-  ).join('');
+  const knownBanks =
+    currentBankName && !BANKS.includes(currentBankName)
+      ? [currentBankName, ...BANKS]
+      : BANKS;
+  const bankOptions = knownBanks
+    .map(
+      (bank) =>
+        `<option value="${escapeHtml(bank)}" ${bank === currentBankName ? 'selected' : ''}>${escapeHtml(bank)}</option>`
+    )
+    .join('');
 
   return `
     <div class="${styles.page}">
@@ -52,7 +53,7 @@ export function renderAccountSetupHTML(
         </div>
 
         <label class="${styles.label}" for="bank-select">은행</label>
-        <select class="${styles.input}" id="bank-select">
+        <select class="${styles.select}" id="bank-select">
           <option value="" disabled ${currentBankName ? '' : 'selected'}>은행을 선택해주세요</option>
           ${bankOptions}
         </select>
