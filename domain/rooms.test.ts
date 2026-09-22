@@ -7,6 +7,7 @@ function createTestRoom(overrides: Partial<Room> = {}): Room {
     name: '송년회',
     host_id: 777,
     created_at: '2026-09-11T00:00:00Z',
+    is_settled: false,
     participants: [
       { id: 1, room_id: '방고유ID', user_id: 777, is_completed: false },
     ],
@@ -328,9 +329,37 @@ describe('calculateRoomDetail', () => {
     const result = calculateRoomDetail(testRoom, viewerId);
 
     expect(result.participants).toEqual([
-      { id: 1, user_id: 1, isCompleted: true },
-      { id: 2, user_id: 2, isCompleted: false },
+      { id: 1, user_id: 1, isCompleted: true, amount: 0 },
+      { id: 2, user_id: 2, isCompleted: false, amount: 0 },
     ]);
+  });
+
+  it('참여자별로 자신이 체크한 항목의 몫이 amount로 계산된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
+        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: false },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '삼겹살',
+          amount: 15000,
+          quantity: 2,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [{ id: 1, item_id: 1, participant_id: 2, paid: false }],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+    const participant2 = result.participants.find((p) => p.id === 2);
+
+    expect(participant2?.amount).toBe(30000);
   });
 
   it('방장은 is_completed가 false여도 항상 완료로 표시된다', () => {
@@ -361,5 +390,21 @@ describe('calculateRoomDetail', () => {
     });
 
     expect(() => calculateRoomDetail(testRoom, viewerId)).toThrow();
+  });
+
+  it('방의 정산 완료 여부가 그대로 반영된다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      is_settled: true,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.isSettled).toBe(true);
   });
 });
