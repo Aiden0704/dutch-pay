@@ -45,38 +45,20 @@ export async function onRequestPost({
     return Response.json({ reason: '방장만 정산을 완료할 수 있습니다' }, { status: 403 });
   }
 
-  const { data: participants, error: participantsError } = await supabase
-    .from('participants')
-    .select('user_id, is_completed')
-    .eq('room_id', params.id);
+  const { data: settled, error: settleError } = await supabase.rpc(
+    'settle_room',
+    { p_room_id: params.id, p_host_id: room.host_id }
+  );
 
-  if (participantsError) {
-    throw new Error(
-      `참여자 조회에 실패하였습니다: ${JSON.stringify(participantsError)}`
-    );
+  if (settleError) {
+    throw new Error(`정산 완료 처리에 실패하였습니다: ${JSON.stringify(settleError)}`);
   }
 
-  const nonHostParticipants = (participants ?? []).filter(
-    (participant) => participant.user_id !== room.host_id
-  );
-  const allCompleted =
-    nonHostParticipants.length > 0 &&
-    nonHostParticipants.every((participant) => participant.is_completed);
-
-  if (!allCompleted) {
+  if (settled !== true) {
     return Response.json(
       { reason: '모든 참여자가 선택 완료를 눌러야 정산할 수 있습니다' },
       { status: 400 }
     );
-  }
-
-  const { error: settleError } = await supabase
-    .from('rooms')
-    .update({ is_settled: true })
-    .eq('id', params.id);
-
-  if (settleError) {
-    throw new Error(`정산 완료 처리에 실패하였습니다: ${JSON.stringify(settleError)}`);
   }
 
   return Response.json({});
