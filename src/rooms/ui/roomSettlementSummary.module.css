@@ -107,6 +107,19 @@
   color: var(--primary-dark);
 }
 
+.tossButton {
+  display: block;
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #3182f6;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
 .sectionTitle {
   margin: 20px 0 8px;
   font-size: 14px;

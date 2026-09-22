@@ -4,6 +4,25 @@ import { escapeHtml } from '../../shared/escapeHtml';
 import type { RoomDetailResponse } from './roomDetail';
 import styles from './roomSettlementSummary.module.css';
 
+function buildTossSendLink(
+  bankName: string,
+  accountNumber: string,
+  amount: number
+): string {
+  const normalizedBank = bankName.endsWith('은행')
+    ? bankName.slice(0, -2)
+    : bankName;
+  const digitsOnlyAccount = accountNumber.replace(/[^0-9]/g, '');
+
+  const params = new URLSearchParams({
+    bank: normalizedBank,
+    accountNo: digitsOnlyAccount,
+    amount: String(amount),
+  });
+
+  return `supertoss://send?${params.toString()}`;
+}
+
 export function renderRoomSettlementSummaryHTML(
   data: RoomDetailResponse
 ): string {
@@ -29,6 +48,11 @@ export function renderRoomSettlementSummaryHTML(
   const heroSub = isHost
     ? `${nonHostParticipants.length}명이 각자 송금할 예정입니다`
     : '방장에게 정산해주세요';
+
+  const tossButton =
+    !isHost && data.hostBankName && data.hostAccountNumber
+      ? `<a class="${styles.tossButton}" href="${buildTossSendLink(data.hostBankName, data.hostAccountNumber, heroAmount)}">토스로 보내기</a>`
+      : '';
 
   const participantRows = data.participants
     .map((participant) => {
@@ -104,6 +128,7 @@ export function renderRoomSettlementSummaryHTML(
           <span class="${styles.heroLabel}">${heroLabel}</span>
           <span class="${styles.heroAmount}">${heroAmount.toLocaleString()}원</span>
           <span class="${styles.heroSub}">${heroSub}</span>
+          ${tossButton}
         </div>
 
         <h2 class="${styles.sectionTitle}">참여자별 금액</h2>
