@@ -102,6 +102,7 @@ export async function onRequestGet({
       user_id: participant.user_id,
       users: participant.users,
       isCompleted: detail.isCompleted,
+      amount: detail.amount,
     };
   });
 
@@ -135,6 +136,7 @@ export async function onRequestGet({
     viewer_id: viewerId,
     totalAmount: roomDetail.totalAmount,
     myAmount: roomDetail.myAmount,
+    isSettled: roomDetail.isSettled,
     participants,
     items,
   });
