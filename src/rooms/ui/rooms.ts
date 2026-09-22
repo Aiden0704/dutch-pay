@@ -80,7 +80,7 @@ export async function renderRooms(
   });
 
   const accountSetupButton = root.querySelector('#account-setup-button');
-  accountSetupButton.addEventListener('click', () => {
+  accountSetupButton?.addEventListener('click', () => {
     navigate('/account-setup');
   });
 
