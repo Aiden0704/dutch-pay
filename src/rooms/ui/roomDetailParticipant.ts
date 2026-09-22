@@ -178,11 +178,15 @@ export function renderRoomDetailParticipant(
         badgeCheck.textContent = '✓ ';
       }
 
-      const response = await fetch(`/api/rooms/${id}/complete`, {
-        method: 'POST',
-      });
+      try {
+        const response = await fetch(`/api/rooms/${id}/complete`, {
+          method: 'POST',
+        });
 
-      if (!response.ok) {
+        if (!response.ok) {
+          renderRoomDetail(root, id, navigate);
+        }
+      } catch {
         renderRoomDetail(root, id, navigate);
       }
     });
