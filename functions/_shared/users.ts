@@ -5,6 +5,8 @@ export interface User {
   kakao_id: number;
   nickname?: string;
   created_at: string;
+  bank_name: string | null;
+  account_number: string | null;
 }
 
 export async function findUserById(
