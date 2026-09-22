@@ -1,3 +1,4 @@
+import accountIcon from '../../assets/icons/account.svg?raw';
 import type { RoomListItem } from '../../../domain/rooms';
 import { escapeHtml } from '../../shared/escapeHtml';
 import { renderRoomForm } from './roomForm';
@@ -51,7 +52,10 @@ export async function renderRooms(
   root.innerHTML = `
     <div class="${styles.page}">
       <header class="${styles.header}">
-        <h1 class="${styles.title}">내 정산방</h1>
+        <div class="${styles.headerRow}">
+          <h1 class="${styles.title}">내 정산방</h1>
+          <button id="account-setup-button" class="${styles.settingsButton}" type="button" aria-label="계좌 정보 수정">${accountIcon}</button>
+        </div>
         <p class="${styles.subtitle}">총 ${totalCount}개 · 진행중 ${inProgressCount}개</p>
       </header>
 
@@ -73,6 +77,11 @@ export async function renderRooms(
       onCancel: () => renderRooms(root, navigate),
       onCreated: (id) => navigate('/rooms/' + id),
     });
+  });
+
+  const accountSetupButton = root.querySelector('#account-setup-button');
+  accountSetupButton.addEventListener('click', () => {
+    navigate('/account-setup');
   });
 
   const cards = root.querySelectorAll<HTMLElement>(`.${styles.card}`);
