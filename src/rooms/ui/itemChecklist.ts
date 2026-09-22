@@ -1,4 +1,5 @@
 import checkIcon from '../../assets/icons/check.svg?raw';
+import minusIcon from '../../assets/icons/minus.svg?raw';
 import plusIcon from '../../assets/icons/plus.svg?raw';
 import trashIcon from '../../assets/icons/trash.svg?raw';
 import { escapeHtml } from '../../shared/escapeHtml';
@@ -33,7 +34,7 @@ export function renderItemChecklistHTML({
   const selectedCount = items.filter((item) =>
     item.checkedParticipants.some((p) => p.user_id === viewerId)
   ).length;
-  const selectAllIcon = selectedCount === items.length ? '−' : plusIcon;
+  const selectAllIcon = selectedCount === items.length ? minusIcon : plusIcon;
 
   const rowsHtml = items
     .map((item) => {
@@ -149,7 +150,8 @@ export function bindItemChecklist(
       countElement.textContent = `${selectedCount}/${rows.length} 선택됨`;
     }
     if (iconElement) {
-      iconElement.innerHTML = selectedCount === rows.length ? '−' : plusIcon;
+      iconElement.innerHTML =
+        selectedCount === rows.length ? minusIcon : plusIcon;
     }
   }
 
