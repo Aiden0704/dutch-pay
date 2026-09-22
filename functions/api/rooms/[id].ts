@@ -110,7 +110,7 @@ export async function onRequestGet({
 
     return {
       user_id: participant.user_id,
-      users: participant.users,
+      users: { nickname: participant.users.nickname },
       isCompleted: detail.isCompleted,
       amount: detail.amount,
     };
