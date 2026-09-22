@@ -1,5 +1,6 @@
 import { renderRoomDetailHost } from './roomDetailHost';
 import { renderRoomDetailParticipant } from './roomDetailParticipant';
+import { renderRoomSettlementSummary } from './roomSettlementSummary';
 
 export interface RoomDetailResponse {
   name: string;
@@ -7,10 +8,12 @@ export interface RoomDetailResponse {
   viewer_id: number;
   totalAmount: number;
   myAmount: number;
+  isSettled: boolean;
   participants: {
     user_id: number;
     users: { nickname: string };
     isCompleted: boolean;
+    amount: number;
   }[];
   items: {
     id: number;
@@ -39,7 +42,9 @@ export async function renderRoomDetail(
   try {
     const data = await fetchRoomDetail(id);
 
-    if (data.viewer_id === data.host_id) {
+    if (data.isSettled) {
+      renderRoomSettlementSummary(root, data, navigate);
+    } else if (data.viewer_id === data.host_id) {
       renderRoomDetailHost(root, data, id, navigate);
     } else {
       renderRoomDetailParticipant(root, data, id, navigate);
