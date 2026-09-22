@@ -37,6 +37,7 @@ export async function onRequestGet({
   const { data, error: roomError } = await supabase
     .from('rooms')
     .select(select)
+    .order('id', { referencedTable: 'items.item_checks' })
     .eq('id', params.id)
     .single();
 
@@ -71,6 +72,7 @@ export async function onRequestGet({
     const { data: rejoined, error: rejoinError } = await supabase
       .from('rooms')
       .select(select)
+      .order('id', { referencedTable: 'items.item_checks' })
       .eq('id', params.id)
       .single();
 
