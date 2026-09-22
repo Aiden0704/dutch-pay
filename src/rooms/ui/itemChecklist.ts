@@ -48,9 +48,7 @@ export function renderItemChecklistHTML({
           : '';
       const tagsHtml = item.checkedParticipants
         .map((participant) => {
-          const meClass =
-            participant.user_id === viewerId ? styles['tag--me'] : '';
-          return `<span class="${styles.tag} ${meClass}" data-user-id="${participant.user_id}">${escapeHtml(participant.name)}</span>`;
+          return `<span class="${styles.tag}" data-user-id="${participant.user_id}">${escapeHtml(participant.name)}</span>`;
         })
         .join('');
 
@@ -196,7 +194,11 @@ export function bindItemChecklist(
   const selectAllButton = container.querySelector<HTMLButtonElement>(
     '[data-select-all]'
   );
+  let selectAllGeneration = 0;
+
   selectAllButton?.addEventListener('click', async () => {
+    const generation = ++selectAllGeneration;
+
     const rows = Array.from(
       container.querySelectorAll<HTMLElement>('[data-item-row]')
     );
@@ -207,13 +209,28 @@ export function bindItemChecklist(
 
     targetRows.forEach((row) => setRowChecked(row, !allChecked));
 
-    await Promise.all(
-      targetRows.map((row) =>
-        setChecked(row.dataset.itemId as string, !allChecked)
-      )
+    const results = await Promise.all(
+      targetRows.map(async (row) => {
+        let ok = false;
+        try {
+          ok = await setChecked(row.dataset.itemId as string, !allChecked);
+        } catch {
+          ok = false;
+        }
+        return { row, ok };
+      })
     );
 
-    onChange();
+    if (generation !== selectAllGeneration) {
+      return;
+    }
+
+    const failures = results.filter((result) => !result.ok);
+    failures.forEach((result) => setRowChecked(result.row, allChecked));
+
+    if (failures.length > 0) {
+      onChange();
+    }
   });
 
   container
