@@ -3,6 +3,7 @@ export interface Room {
   name: string;
   host_id: number;
   created_at: string;
+  is_settled: boolean;
   participants: Participant[];
   items: Item[];
 }
@@ -77,11 +78,13 @@ export interface RoomDetailParticipant {
   id: number;
   user_id: number;
   isCompleted: boolean;
+  amount: number;
 }
 
 export interface RoomDetail {
   totalAmount: number;
   myAmount: number;
+  isSettled: boolean;
   participants: RoomDetailParticipant[];
 }
 
@@ -101,9 +104,10 @@ export function calculateRoomDetail(room: Room, viewerId: number): RoomDetail {
     user_id: participant.user_id,
     isCompleted:
       participant.user_id === room.host_id ? true : participant.is_completed,
+    amount: calculateOwedAmount(participant.id, room.items),
   }));
 
-  return { totalAmount, myAmount, participants };
+  return { totalAmount, myAmount, isSettled: room.is_settled, participants };
 }
 
 export function calculateRoomListItems(
