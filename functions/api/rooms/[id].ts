@@ -137,6 +137,7 @@ export async function onRequestGet({
     totalAmount: roomDetail.totalAmount,
     myAmount: roomDetail.myAmount,
     isSettled: roomDetail.isSettled,
+    readyToSettle: roomDetail.readyToSettle,
     participants,
     items,
   });
