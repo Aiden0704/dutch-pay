@@ -1,0 +1,38 @@
+:root {
+  --primary: #7c3aed;
+  --primary-dark: #5b21b6;
+  --primary-light: #ddd6fe;
+
+  --bg: #f8f7ff;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #64748b;
+  --text-tertiary: #cbd5e1;
+
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --warning: #f97316;
+  --warning-light: #fef3c7;
+  --error: #ef4444;
+  --error-light: #fee2e2;
+
+  --border: #e2e0f0;
+}
+
+* {
+  font-family: 'Pretendard Variable', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #ececec;
+  min-height: 100vh;
+}
+
+#app {
+  box-sizing: border-box;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+}

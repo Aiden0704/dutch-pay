@@ -1,0 +1,52 @@
+import type { Env, KakaoUser } from './types';
+
+async function exchangeCodeForToken(code: string, env: Env) {
+  const url = 'https://kauth.kakao.com/oauth/token';
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: env.KAKAO_REST_API_KEY,
+      client_secret: env.KAKAO_CLIENT_SECRET,
+      redirect_uri: env.KAKAO_REDIRECT_URI,
+      code: code,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('코드를 토큰으로 변환할 수 없습니다');
+  }
+
+  return response;
+}
+
+async function getKakaoUserInfo(accessToken: string) {
+  const url = 'https://kapi.kakao.com/v2/user/me';
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('유저 정보를 확인할 수 없습니다');
+  }
+
+  return response;
+}
+
+export async function exchangeCodeForKakaoUser(
+  code: string,
+  env: Env
+): Promise<KakaoUser> {
+  const tokenResponse = await exchangeCodeForToken(code, env);
+  const token = await tokenResponse.json();
+
+  const userInfoResponse = await getKakaoUserInfo(token.access_token);
+  return await userInfoResponse.json();
+}
