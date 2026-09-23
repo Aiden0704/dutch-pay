@@ -1,4 +1,5 @@
 import { getCookie } from '../../../_shared/http';
+import { assertRoomNotSettled } from '../../../_shared/rooms';
 import { getUserIdFromToken, type SessionEnv } from '../../../_shared/session';
 import { createSupabaseClient, type SupabaseEnv } from '../../../_shared/supabase';
 
@@ -45,6 +46,12 @@ export async function onRequestPost({
       { reason: '이 방의 참여자가 아닙니다' },
       { status: 403 }
     );
+  }
+
+  const settledResponse = await assertRoomNotSettled(supabase, params.id);
+
+  if (settledResponse) {
+    return settledResponse;
   }
 
   const { error: updateError } = await supabase
