@@ -53,26 +53,16 @@ describe('calculateRoomListItems', () => {
     expect(result[0].role).toBe('member');
   });
 
-  it('방장을 제외한 모든 참여자가 선택 완료를 누르면 정산이 완료된 것으로 처리된다', () => {
+  it('방이 정산 완료(is_settled)되면 목록에서도 완료로 표시된다', () => {
     // Given
     const viewerId = 1;
 
     const testRoom = createTestRoom({
       host_id: 1,
+      is_settled: true,
       participants: [
         { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
-        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: true },
-      ],
-      items: [
-        {
-          id: 1,
-          room_id: '방고유ID',
-          name: '삼겹살',
-          amount: 15000,
-          quantity: 3,
-          created_at: '2026-09-11T00:00:00Z',
-          item_checks: [{ id: 1, item_id: 1, participant_id: 2, paid: false }],
-        },
+        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: false },
       ],
     });
 
@@ -83,15 +73,16 @@ describe('calculateRoomListItems', () => {
     expect(result[0].isCompleted).toBe(true);
   });
 
-  it('방장을 제외한 참여자 중 선택 완료를 누르지 않은 멤버가 있다면 정산이 완료되지 않은 것으로 처리된다', () => {
+  it('참여자 전원이 완료해도 방 자체가 정산 완료되지 않았다면 목록에서 완료로 표시되지 않는다', () => {
     // Given
     const viewerId = 1;
 
     const testRoom = createTestRoom({
       host_id: 1,
+      is_settled: false,
       participants: [
         { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
-        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: false },
+        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: true },
       ],
       items: [
         {

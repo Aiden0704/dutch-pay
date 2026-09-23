@@ -165,7 +165,7 @@ export function calculateRoomListItems(
         ? nonHostParticipants.filter((participant) => participant.is_completed)
             .length
         : 0;
-    const isCompleted = isRoomReadyToSettle(nonHostParticipants, room.items.length);
+    const isCompleted = room.is_settled;
 
     return {
       id,
