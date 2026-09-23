@@ -1,12 +1,12 @@
-import backIcon from '../../assets/icons/back.svg?raw';
-import checkIcon from '../../assets/icons/check.svg?raw';
-import { escapeHtml } from '../../shared/escapeHtml';
-import { renderAddItemSheet } from './addItemSheet';
+import backIcon from '../../../assets/icons/back.svg?raw';
+import checkIcon from '../../../assets/icons/check.svg?raw';
+import { escapeHtml } from '../../../shared/escapeHtml';
+import { renderAddItemSheet } from '../components/addItemSheet';
 import {
   bindItemChecklist,
   renderItemChecklistHTML,
   type ChecklistItem,
-} from './itemChecklist';
+} from '../components/itemChecklist';
 import { renderRoomDetail, type RoomDetailResponse } from './roomDetail';
 import styles from './roomDetailHost.module.css';
 
