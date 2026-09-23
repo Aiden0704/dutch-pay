@@ -1,7 +1,7 @@
-import backIcon from '../../assets/icons/back.svg?raw';
-import checkIcon from '../../assets/icons/check.svg?raw';
-import { escapeHtml } from '../../shared/escapeHtml';
-import type { RoomDetailResponse } from './roomDetail';
+import backIcon from '../../../assets/icons/back.svg?raw';
+import checkIcon from '../../../assets/icons/check.svg?raw';
+import { escapeHtml } from '../../../shared/escapeHtml';
+import type { RoomDetailResponse } from '../detail/roomDetail';
 import styles from './roomSettlementSummary.module.css';
 
 function buildTossSendLink(
