@@ -72,7 +72,7 @@ export async function renderRooms(
   `;
 
   const createButton = root.querySelector('#create-button');
-  createButton.addEventListener('click', () => {
+  createButton?.addEventListener('click', () => {
     renderRoomForm(root, {
       onCancel: () => renderRooms(root, navigate),
       onCreated: (id) => navigate('/rooms/' + id),

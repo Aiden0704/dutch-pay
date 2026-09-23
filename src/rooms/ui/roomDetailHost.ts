@@ -139,12 +139,12 @@ export function renderRoomDetailHost(
     });
 
     const backButton = root.querySelector('#back-button');
-    backButton.addEventListener('click', () => {
+    backButton?.addEventListener('click', () => {
       navigate('/rooms');
     });
 
     const shareButton = root.querySelector('#share-button');
-    shareButton.addEventListener('click', async () => {
+    shareButton?.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(
           `${window.location.origin}/rooms/${id}`
@@ -162,7 +162,7 @@ export function renderRoomDetailHost(
     });
 
     const addItemButton = root.querySelector('#add-item-button');
-    addItemButton.addEventListener('click', () => {
+    addItemButton?.addEventListener('click', () => {
       renderAddItemSheet(root, id, {
         onCancel: () => {},
         onAdded: () => renderRoomDetail(root, id, navigate),

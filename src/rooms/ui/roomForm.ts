@@ -60,12 +60,12 @@ export async function renderRoomForm(
   }
 
   const cancelButton = root.querySelector('#cancel-button');
-  cancelButton.addEventListener('click', () => {
+  cancelButton?.addEventListener('click', () => {
     options.onCancel();
   });
 
   const backButton = root.querySelector('#back-button');
-  backButton.addEventListener('click', () => {
+  backButton?.addEventListener('click', () => {
     options.onCancel();
   });
 
@@ -78,7 +78,9 @@ export async function renderRoomForm(
     const errorElement = root.querySelector('#room-form-error');
 
     if (!roomName) {
-      errorElement.textContent = '모임 이름을 입력해주세요';
+      if (errorElement) {
+        errorElement.textContent = '모임 이름을 입력해주세요';
+      }
       return;
     }
 
@@ -94,7 +96,9 @@ export async function renderRoomForm(
       });
 
       if (!response.ok) {
-        errorElement.textContent = '방 생성에 실패하였습니다';
+        if (errorElement) {
+          errorElement.textContent = '방 생성에 실패하였습니다';
+        }
         submitButton.classList.remove(styles['submitButton-loading']);
         submitButton.disabled = false;
         submitButton.textContent = '만들기';
@@ -105,7 +109,9 @@ export async function renderRoomForm(
       const data = (await response.json()) as CreateRoomResponse;
       options.onCreated(data.id);
     } catch {
-      errorElement.textContent = '방 생성에 실패하였습니다';
+      if (errorElement) {
+        errorElement.textContent = '방 생성에 실패하였습니다';
+      }
       submitButton.classList.remove(styles['submitButton-loading']);
       submitButton.disabled = false;
       submitButton.textContent = '만들기';
