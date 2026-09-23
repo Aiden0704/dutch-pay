@@ -1,9 +1,9 @@
 import './style.css';
 import { renderAccountSetup } from './account/ui/accountSetup';
 import { renderLogin } from './login/ui/login';
-import { renderRooms } from './rooms/ui/rooms';
+import { renderRooms } from './rooms/ui/list/rooms';
 import { renderRoute, type Route } from './shared/router';
-import { renderRoomDetail } from './rooms/ui/roomDetail';
+import { renderRoomDetail } from './rooms/ui/detail/roomDetail';
 import type { MeResponse } from '../shared-types/me';
 
 const PATHS = {

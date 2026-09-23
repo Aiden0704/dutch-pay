@@ -1,6 +1,6 @@
 import { renderRoomDetailHost } from './roomDetailHost';
 import { renderRoomDetailParticipant } from './roomDetailParticipant';
-import { renderRoomSettlementSummary } from './roomSettlementSummary';
+import { renderRoomSettlementSummary } from '../settlement/roomSettlementSummary';
 
 export interface RoomDetailResponse {
   name: string;

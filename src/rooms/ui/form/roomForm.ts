@@ -1,6 +1,6 @@
-import backIcon from '../../assets/icons/back.svg?raw';
-import type { MeResponse } from '../../../shared-types/me';
-import { escapeHtml } from '../../shared/escapeHtml';
+import backIcon from '../../../assets/icons/back.svg?raw';
+import type { MeResponse } from '../../../../shared-types/me';
+import { escapeHtml } from '../../../shared/escapeHtml';
 import styles from './roomForm.module.css';
 
 interface CreateRoomResponse {

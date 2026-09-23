@@ -1,7 +1,7 @@
-import accountIcon from '../../assets/icons/account.svg?raw';
-import type { RoomListItem } from '../../../domain/rooms';
-import { escapeHtml } from '../../shared/escapeHtml';
-import { renderRoomForm } from './roomForm';
+import accountIcon from '../../../assets/icons/account.svg?raw';
+import type { RoomListItem } from '../../../../domain/rooms';
+import { escapeHtml } from '../../../shared/escapeHtml';
+import { renderRoomForm } from '../form/roomForm';
 import styles from './rooms.module.css';
 
 export async function renderRooms(
