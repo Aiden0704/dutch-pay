@@ -199,9 +199,8 @@ export function bindItemChecklist(
     onMyAmountDelta(newMyShare - oldMyShare);
   }
 
-  const selectAllButton = container.querySelector<HTMLButtonElement>(
-    '[data-select-all]'
-  );
+  const selectAllButton =
+    container.querySelector<HTMLButtonElement>('[data-select-all]');
   let selectAllGeneration = 0;
 
   selectAllButton?.addEventListener('click', async () => {
@@ -238,14 +237,19 @@ export function bindItemChecklist(
 
     if (failures.length > 0) {
       onChange();
-      alert(failures[0].reason ?? '일부 항목의 체크 상태를 변경하지 못했습니다');
+      alert(
+        failures[0].reason ?? '일부 항목의 체크 상태를 변경하지 못했습니다'
+      );
     }
   });
 
-  container
-    .querySelectorAll<HTMLElement>('[data-item-row]')
-    .forEach((row) => {
-      row.querySelector('[data-checkbox]')?.addEventListener('click', async () => {
+  container.querySelectorAll<HTMLElement>('[data-item-row]').forEach((row) => {
+    let rowGeneration = 0;
+
+    row
+      .querySelector('[data-checkbox]')
+      ?.addEventListener('click', async () => {
+        const generation = ++rowGeneration;
         const itemId = row.dataset.itemId as string;
         const isChecked = row.dataset.checked === 'true';
 
@@ -258,29 +262,30 @@ export function bindItemChecklist(
           result = { ok: false };
         }
 
+        if (generation !== rowGeneration) {
+          return;
+        }
+
         if (!result.ok) {
           setRowChecked(row, isChecked);
           onChange();
           alert(result.reason ?? '체크 상태를 변경하지 못했습니다');
-          return;
         }
+      });
+
+    row
+      .querySelector('[data-delete-item]')
+      ?.addEventListener('click', async () => {
+        const itemId = row.dataset.itemId as string;
+
+        row.remove();
+        updateSelectAllSummary();
+
+        await fetch(`/api/rooms/${roomId}/items/${itemId}`, {
+          method: 'DELETE',
+        });
 
         onChange();
       });
-
-      row
-        .querySelector('[data-delete-item]')
-        ?.addEventListener('click', async () => {
-          const itemId = row.dataset.itemId as string;
-
-          row.remove();
-          updateSelectAllSummary();
-
-          await fetch(`/api/rooms/${roomId}/items/${itemId}`, {
-            method: 'DELETE',
-          });
-
-          onChange();
-        });
-    });
+  });
 }
