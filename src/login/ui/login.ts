@@ -50,7 +50,7 @@ export function renderLogin(root: HTMLElement) {
   `;
 
   const kakaoButton = root.querySelector('#kakao-button');
-  kakaoButton.addEventListener('click', () => {
+  kakaoButton?.addEventListener('click', () => {
     window.location.href = redirect
       ? `/api/kakao/login?redirect=${encodeURIComponent(redirect)}`
       : '/api/kakao/login';

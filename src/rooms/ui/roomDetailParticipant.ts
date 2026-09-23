@@ -141,12 +141,12 @@ export function renderRoomDetailParticipant(
     });
 
     const backButton = root.querySelector('#back-button');
-    backButton.addEventListener('click', () => {
+    backButton?.addEventListener('click', () => {
       navigate('/rooms');
     });
 
     const shareButton = root.querySelector('#share-button');
-    shareButton.addEventListener('click', async () => {
+    shareButton?.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(
           `${window.location.origin}/rooms/${id}`
