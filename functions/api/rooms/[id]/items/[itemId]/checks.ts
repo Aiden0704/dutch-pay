@@ -1,4 +1,5 @@
 import { getCookie } from '../../../../../_shared/http';
+import { assertRoomNotSettled } from '../../../../../_shared/rooms';
 import { getUserIdFromToken, type SessionEnv } from '../../../../../_shared/session';
 import {
   createSupabaseClient,
@@ -82,6 +83,12 @@ export async function onRequestPost({
 
   const supabase = createSupabaseClient(env);
 
+  const settledResponse = await assertRoomNotSettled(supabase, params.id);
+
+  if (settledResponse) {
+    return settledResponse;
+  }
+
   const { data: item, error: itemError } = await supabase
     .from('items')
     .select('id')
@@ -131,6 +138,12 @@ export async function onRequestDelete({
   }
 
   const supabase = createSupabaseClient(env);
+
+  const settledResponse = await assertRoomNotSettled(supabase, params.id);
+
+  if (settledResponse) {
+    return settledResponse;
+  }
 
   const { error: deleteError } = await supabase
     .from('item_checks')
