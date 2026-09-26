@@ -1,6 +1,7 @@
 import { renderRoomDetailHost } from './roomDetailHost';
 import { renderRoomDetailParticipant } from './roomDetailParticipant';
 import { renderRoomSettlementSummary } from '../settlement/roomSettlementSummary';
+import { pollHostRoom, pollSettlement, stopRoomPolling } from './roomPolling';
 
 export interface RoomDetailResponse {
   name: string;
@@ -37,6 +38,49 @@ export async function fetchRoomDetail(id: string): Promise<RoomDetailResponse> {
   return (await response.json()) as RoomDetailResponse;
 }
 
+function showRoomDetail(
+  root: HTMLElement,
+  data: RoomDetailResponse,
+  id: string,
+  navigate: (path: string) => void
+): void {
+  const refresh = (latest: RoomDetailResponse) =>
+    showRoomDetail(root, latest, id, navigate);
+
+  if (data.isSettled) {
+    stopRoomPolling();
+    renderRoomSettlementSummary(root, data, navigate);
+    return;
+  }
+
+  if (data.viewer_id === data.host_id) {
+    pollHostRoom(root, id, data, refresh);
+    renderRoomDetailHost(root, data, id, navigate);
+    return;
+  }
+
+  const viewer = data.participants.find(
+    (participant) => participant.user_id === data.viewer_id
+  );
+
+  if (viewer?.isCompleted) {
+    pollSettlement(root, id, refresh);
+  } else {
+    stopRoomPolling();
+  }
+  renderRoomDetailParticipant(root, data, id, navigate);
+}
+
+export function watchSettlement(
+  root: HTMLElement,
+  id: string,
+  navigate: (path: string) => void
+): void {
+  pollSettlement(root, id, (latest) =>
+    showRoomDetail(root, latest, id, navigate)
+  );
+}
+
 export async function renderRoomDetail(
   root: HTMLElement,
   id: string,
@@ -45,13 +89,7 @@ export async function renderRoomDetail(
   try {
     const data = await fetchRoomDetail(id);
 
-    if (data.isSettled) {
-      renderRoomSettlementSummary(root, data, navigate);
-    } else if (data.viewer_id === data.host_id) {
-      renderRoomDetailHost(root, data, id, navigate);
-    } else {
-      renderRoomDetailParticipant(root, data, id, navigate);
-    }
+    showRoomDetail(root, data, id, navigate);
   } catch {
     root.innerHTML = '정산방 상세 화면 불러오기에 실패하였습니다';
   }
