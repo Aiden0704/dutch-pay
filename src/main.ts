@@ -2,6 +2,7 @@ import './style.css';
 import { renderAccountSetup } from './account/ui/accountSetup';
 import { renderLogin } from './login/ui/login';
 import { renderRooms } from './rooms/ui/list/rooms';
+import { bindRefreshOnVisible } from './shared/refreshOnVisible';
 import { renderRoute, type Route } from './shared/router';
 import { renderRoomDetail } from './rooms/ui/detail/roomDetail';
 import type { MeResponse } from '../shared-types/me';
@@ -22,10 +23,15 @@ const root = app;
 
 const route: Route[] = [
   { pattern: PATHS.LOGIN, render: renderLogin },
-  { pattern: PATHS.ROOMS, render: (root) => renderRooms(root, navigate) },
+  {
+    pattern: PATHS.ROOMS,
+    render: (root) => renderRooms(root, navigate),
+    refreshOnVisible: true,
+  },
   {
     pattern: PATHS.ROOMS_DETAIL,
     render: (root, params) => renderRoomDetail(root, params.id, navigate),
+    refreshOnVisible: true,
   },
   {
     pattern: PATHS.ACCOUNT_SETUP,
@@ -41,6 +47,8 @@ function navigate(path: string) {
 window.addEventListener('popstate', () => {
   renderRoute(root, window.location.pathname, route);
 });
+
+bindRefreshOnVisible(root, route);
 
 function goToLogin() {
   const currentPath = window.location.pathname;
