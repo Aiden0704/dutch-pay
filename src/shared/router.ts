@@ -1,6 +1,7 @@
 export interface Route {
   pattern: string;
   render: (root: HTMLElement, params: Record<string, string>) => void;
+  refreshOnVisible?: boolean;
 }
 
 export function renderRoute(
@@ -18,6 +19,18 @@ export function renderRoute(
   }
 
   return false;
+}
+
+export function refreshRoute(
+  root: HTMLElement,
+  pathName: string,
+  routes: Route[]
+): boolean {
+  return renderRoute(
+    root,
+    pathName,
+    routes.filter((route) => route.refreshOnVisible)
+  );
 }
 
 export function matchRoute(
