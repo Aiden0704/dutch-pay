@@ -6,7 +6,11 @@ import {
   renderItemChecklistHTML,
   type ChecklistItem,
 } from '../components/itemChecklist';
-import { renderRoomDetail, type RoomDetailResponse } from './roomDetail';
+import {
+  renderRoomDetail,
+  watchSettlement,
+  type RoomDetailResponse,
+} from './roomDetail';
 import styles from './roomDetailParticipant.module.css';
 
 interface RoomDetailParticipantBadge {
@@ -187,6 +191,8 @@ export function renderRoomDetailParticipant(
           const data = await response.json().catch(() => null);
           alert(data?.reason ?? '완료 처리에 실패했습니다');
           renderRoomDetail(root, id, navigate);
+        } else {
+          watchSettlement(root, id, navigate);
         }
       } catch {
         renderRoomDetail(root, id, navigate);
