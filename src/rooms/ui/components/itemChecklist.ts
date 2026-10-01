@@ -168,7 +168,8 @@ export function bindItemChecklist(
     const tagsContainer = row.querySelector('[data-tags]');
     const oldTagCount = tagsContainer?.children.length ?? 0;
     const wasChecked = row.dataset.checked === 'true';
-    const oldMyShare = wasChecked && oldTagCount > 0 ? total / oldTagCount : 0;
+    const oldMyShare =
+      wasChecked && oldTagCount > 0 ? Math.round(total / oldTagCount) : 0;
 
     row.dataset.checked = String(checked);
     row
@@ -194,7 +195,8 @@ export function bindItemChecklist(
     updateSelectAllSummary();
 
     const newTagCount = tagsContainer?.children.length ?? 0;
-    const newMyShare = checked && newTagCount > 0 ? total / newTagCount : 0;
+    const newMyShare =
+      checked && newTagCount > 0 ? Math.round(total / newTagCount) : 0;
 
     onMyAmountDelta(newMyShare - oldMyShare);
   }
