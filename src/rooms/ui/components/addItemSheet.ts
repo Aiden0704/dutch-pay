@@ -5,10 +5,13 @@ interface AddItemSheetOptions {
   onAdded: () => void;
 }
 
-function renderRowHTML(index: number): string {
+function renderRowHTML(index: number, removable: boolean): string {
   return `
     <div class="${styles.row}" data-row>
-      <span class="${styles.rowLabel}">항목 ${index}</span>
+      <div class="${styles.rowHeader}">
+        <span class="${styles.rowLabel}">항목 ${index}</span>
+        ${removable ? `<button class="${styles.removeRowButton}" type="button" data-remove-row aria-label="항목 삭제">×</button>` : ''}
+      </div>
       <div class="${styles.rowInputs}">
         <input class="${styles.nameInput}" type="text" placeholder="항목명 (예: 삼겹살)" data-name-input />
         <input class="${styles.quantityInput}" type="number" min="1" value="1" data-quantity-input />
@@ -31,7 +34,7 @@ function renderAddItemSheetHTML(): string {
         </div>
 
         <div class="${styles.rows}" id="item-rows">
-          ${renderRowHTML(1)}
+          ${renderRowHTML(1, false)}
         </div>
 
         <button class="${styles.addRowButton}" type="button" id="add-row-button">+ 항목 하나 더</button>
@@ -97,6 +100,24 @@ export function renderAddItemSheet(
     submitButton.textContent = `추가하기 (${validCount}개)`;
   }
 
+  function renumberRows() {
+    const rows = rowsContainer.querySelectorAll('[data-row]');
+    rows.forEach((row, index) => {
+      const label = row.querySelector(`.${styles.rowLabel}`);
+      if (label) {
+        label.textContent = `항목 ${index + 1}`;
+      }
+    });
+  }
+
+  function bindRemoveButton(row: Element) {
+    row.querySelector('[data-remove-row]')?.addEventListener('click', () => {
+      row.remove();
+      renumberRows();
+      updateSubmitButton();
+    });
+  }
+
   overlay.querySelector('#close-button')?.addEventListener('click', () => {
     close(() => options.onCancel());
   });
@@ -107,7 +128,11 @@ export function renderAddItemSheet(
 
   overlay.querySelector('#add-row-button')?.addEventListener('click', () => {
     const nextIndex = rowsContainer.querySelectorAll('[data-row]').length + 1;
-    rowsContainer.insertAdjacentHTML('beforeend', renderRowHTML(nextIndex));
+    rowsContainer.insertAdjacentHTML(
+      'beforeend',
+      renderRowHTML(nextIndex, true)
+    );
+    bindRemoveButton(rowsContainer.lastElementChild as HTMLElement);
     updateSubmitButton();
   });
 
