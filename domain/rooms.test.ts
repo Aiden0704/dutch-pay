@@ -452,6 +452,32 @@ describe('calculateRoomDetail', () => {
     expect(result.myAmount).toBe(3334);
   });
 
+  it('아무도 체크하지 않은 항목은 방장 금액에도 반영되지 않는다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '삼겹살',
+          amount: 18000,
+          quantity: 1,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+
+    expect(result.myAmount).toBe(0);
+  });
+
   it('항목이 없는 방은 참여자 전원이 완료해도 정산 준비가 되지 않은 것으로 처리된다', () => {
     const viewerId = 1;
 
