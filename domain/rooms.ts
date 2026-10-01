@@ -87,24 +87,38 @@ function findParticipantCheck(
   );
 }
 
+function calculateRoundingRemainder(items: Item[]): number {
+  return items.reduce((sum, item) => {
+    const checkerCount = item.item_checks.length;
+
+    if (checkerCount === 0) {
+      return sum;
+    }
+
+    const itemTotal = item.amount * item.quantity;
+    const roundedShare = Math.round(itemTotal / checkerCount);
+
+    return sum + (itemTotal - roundedShare * checkerCount);
+  }, 0);
+}
+
 function calculateAmounts(room: Room): Map<number, number> {
   const amounts = new Map<number, number>();
-  let nonHostTotal = 0;
 
-  room.participants
-    .filter((participant) => participant.user_id !== room.host_id)
-    .forEach((participant) => {
-      const amount = calculateOwedAmount(participant.id, room.items);
-      amounts.set(participant.id, amount);
-      nonHostTotal += amount;
-    });
+  room.participants.forEach((participant) => {
+    amounts.set(
+      participant.id,
+      calculateOwedAmount(participant.id, room.items)
+    );
+  });
 
   const host = room.participants.find(
     (participant) => participant.user_id === room.host_id
   );
 
   if (host) {
-    amounts.set(host.id, calculateTotalAmount(room.items) - nonHostTotal);
+    const remainder = calculateRoundingRemainder(room.items);
+    amounts.set(host.id, (amounts.get(host.id) ?? 0) + remainder);
   }
 
   return amounts;
