@@ -88,12 +88,28 @@
   background: var(--bg);
 }
 
+.rowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .rowLabel {
   display: block;
-  margin-bottom: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
+}
+
+.removeRowButton {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .rowInputs {
