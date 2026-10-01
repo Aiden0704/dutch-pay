@@ -100,10 +100,14 @@ export async function renderAccountSetup(
 
   const submitButton = root.querySelector<HTMLButtonElement>('#submit-button');
   const errorElement = root.querySelector('#account-setup-error');
+  const accountInput = root.querySelector<HTMLInputElement>('#account-input');
+
+  accountInput?.addEventListener('input', () => {
+    accountInput.value = accountInput.value.replace(/[^0-9]/g, '');
+  });
 
   submitButton?.addEventListener('click', async () => {
     const bankSelect = root.querySelector<HTMLSelectElement>('#bank-select');
-    const accountInput = root.querySelector<HTMLInputElement>('#account-input');
     const bankName = bankSelect?.value ?? '';
     const accountNumber = accountInput?.value.trim() ?? '';
 
