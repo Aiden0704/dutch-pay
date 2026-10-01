@@ -415,6 +415,43 @@ describe('calculateRoomDetail', () => {
     expect(result.myAmount).toBe(3333);
   });
 
+  it('참여자별 반올림 오차는 방장이 흡수해 전체 합계가 총액과 일치한다', () => {
+    const viewerId = 1;
+
+    const testRoom = createTestRoom({
+      host_id: 1,
+      participants: [
+        { id: 1, room_id: '방고유ID', user_id: 1, is_completed: false },
+        { id: 2, room_id: '방고유ID', user_id: 2, is_completed: false },
+        { id: 3, room_id: '방고유ID', user_id: 3, is_completed: false },
+      ],
+      items: [
+        {
+          id: 1,
+          room_id: '방고유ID',
+          name: '떡볶이',
+          amount: 10000,
+          quantity: 1,
+          created_at: '2026-09-11T00:00:00Z',
+          item_checks: [
+            { id: 1, item_id: 1, participant_id: 1, paid: false },
+            { id: 2, item_id: 1, participant_id: 2, paid: false },
+            { id: 3, item_id: 1, participant_id: 3, paid: false },
+          ],
+        },
+      ],
+    });
+
+    const result = calculateRoomDetail(testRoom, viewerId);
+    const amountSum = result.participants.reduce(
+      (sum, participant) => sum + participant.amount,
+      0
+    );
+
+    expect(amountSum).toBe(result.totalAmount);
+    expect(result.myAmount).toBe(3334);
+  });
+
   it('항목이 없는 방은 참여자 전원이 완료해도 정산 준비가 되지 않은 것으로 처리된다', () => {
     const viewerId = 1;
 

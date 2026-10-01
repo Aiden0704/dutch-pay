@@ -87,6 +87,29 @@ function findParticipantCheck(
   );
 }
 
+function calculateAmounts(room: Room): Map<number, number> {
+  const amounts = new Map<number, number>();
+  let nonHostTotal = 0;
+
+  room.participants
+    .filter((participant) => participant.user_id !== room.host_id)
+    .forEach((participant) => {
+      const amount = calculateOwedAmount(participant.id, room.items);
+      amounts.set(participant.id, amount);
+      nonHostTotal += amount;
+    });
+
+  const host = room.participants.find(
+    (participant) => participant.user_id === room.host_id
+  );
+
+  if (host) {
+    amounts.set(host.id, calculateTotalAmount(room.items) - nonHostTotal);
+  }
+
+  return amounts;
+}
+
 export interface RoomDetailParticipant {
   id: number;
   user_id: number;
@@ -112,13 +135,14 @@ export function calculateRoomDetail(room: Room, viewerId: number): RoomDetail {
   }
 
   const totalAmount = calculateTotalAmount(room.items);
-  const myAmount = calculateOwedAmount(myParticipant.id, room.items);
+  const amounts = calculateAmounts(room);
+  const myAmount = amounts.get(myParticipant.id) ?? 0;
   const participants = room.participants.map((participant) => ({
     id: participant.id,
     user_id: participant.user_id,
     isCompleted:
       participant.user_id === room.host_id ? true : participant.is_completed,
-    amount: calculateOwedAmount(participant.id, room.items),
+    amount: amounts.get(participant.id) ?? 0,
   }));
   const nonHostParticipants = room.participants.filter(
     (participant) => participant.user_id !== room.host_id
@@ -156,7 +180,7 @@ export function calculateRoomListItems(
     const participantCount = room.participants.length;
     const itemCount = room.items.length;
     const totalAmount = calculateTotalAmount(room.items);
-    const myAmount = calculateOwedAmount(myParticipant.id, room.items);
+    const myAmount = calculateAmounts(room).get(myParticipant.id) ?? 0;
     const nonHostParticipants = room.participants.filter(
       (participant) => participant.user_id !== room.host_id
     );
