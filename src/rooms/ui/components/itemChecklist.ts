@@ -5,6 +5,8 @@ import trashIcon from '../../../assets/icons/trash.svg?raw';
 import { escapeHtml } from '../../../shared/escapeHtml';
 import styles from './itemChecklist.module.css';
 
+const CHECK_DEBOUNCE_MS = 300;
+
 export interface ChecklistItem {
   id: number;
   name: string;
@@ -203,11 +205,65 @@ export function bindItemChecklist(
 
   const selectAllButton =
     container.querySelector<HTMLButtonElement>('[data-select-all]');
-  let selectAllGeneration = 0;
+  let selectAllTimer: ReturnType<typeof setTimeout> | undefined;
+  let isSelectAllSending = false;
 
-  selectAllButton?.addEventListener('click', async () => {
-    const generation = ++selectAllGeneration;
+  async function sendSelectAllNow() {
+    isSelectAllSending = true;
 
+    const rows = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-item-row]')
+    );
+    const desiredAllChecked = rows.every(
+      (row) => row.dataset.checked === 'true'
+    );
+    const targetRows = rows.filter(
+      (row) => (row.dataset.checked === 'true') !== desiredAllChecked
+    );
+
+    const results = await Promise.all(
+      targetRows.map(async (row) => {
+        let result: { ok: boolean; reason?: string };
+        try {
+          result = await setChecked(
+            row.dataset.itemId as string,
+            desiredAllChecked
+          );
+        } catch {
+          result = { ok: false };
+        }
+        return { row, ...result };
+      })
+    );
+
+    isSelectAllSending = false;
+
+    const failures = results.filter((result) => !result.ok);
+
+    if (failures.length > 0) {
+      failures.forEach((result) =>
+        setRowChecked(result.row, !desiredAllChecked)
+      );
+      onChange();
+      alert(
+        failures[0].reason ?? '일부 항목의 체크 상태를 변경하지 못했습니다'
+      );
+      return;
+    }
+
+    const rowsNow = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-item-row]')
+    );
+    const currentAllChecked = rowsNow.every(
+      (row) => row.dataset.checked === 'true'
+    );
+
+    if (currentAllChecked !== desiredAllChecked) {
+      sendSelectAllNow();
+    }
+  }
+
+  selectAllButton?.addEventListener('click', () => {
     const rows = Array.from(
       container.querySelectorAll<HTMLElement>('[data-item-row]')
     );
@@ -218,62 +274,62 @@ export function bindItemChecklist(
 
     targetRows.forEach((row) => setRowChecked(row, !allChecked));
 
-    const results = await Promise.all(
-      targetRows.map(async (row) => {
-        let result: { ok: boolean; reason?: string };
-        try {
-          result = await setChecked(row.dataset.itemId as string, !allChecked);
-        } catch {
-          result = { ok: false };
-        }
-        return { row, ...result };
-      })
-    );
-
-    if (generation !== selectAllGeneration) {
-      return;
+    if (selectAllTimer) {
+      clearTimeout(selectAllTimer);
     }
 
-    const failures = results.filter((result) => !result.ok);
-    failures.forEach((result) => setRowChecked(result.row, allChecked));
-
-    if (failures.length > 0) {
-      onChange();
-      alert(
-        failures[0].reason ?? '일부 항목의 체크 상태를 변경하지 못했습니다'
-      );
-    }
+    selectAllTimer = setTimeout(() => {
+      if (!isSelectAllSending) {
+        sendSelectAllNow();
+      }
+    }, CHECK_DEBOUNCE_MS);
   });
 
   container.querySelectorAll<HTMLElement>('[data-item-row]').forEach((row) => {
-    let rowGeneration = 0;
+    let rowTimer: ReturnType<typeof setTimeout> | undefined;
+    let isSending = false;
 
-    row
-      .querySelector('[data-checkbox]')
-      ?.addEventListener('click', async () => {
-        const generation = ++rowGeneration;
-        const itemId = row.dataset.itemId as string;
-        const isChecked = row.dataset.checked === 'true';
+    async function sendNow() {
+      isSending = true;
+      const desiredChecked = row.dataset.checked === 'true';
 
-        setRowChecked(row, !isChecked);
+      let result: { ok: boolean; reason?: string };
 
-        let result: { ok: boolean; reason?: string };
-        try {
-          result = await setChecked(itemId, !isChecked);
-        } catch {
-          result = { ok: false };
+      try {
+        result = await setChecked(row.dataset.itemId as string, desiredChecked);
+      } catch {
+        result = { ok: false };
+      }
+
+      isSending = false;
+
+      if (!result.ok) {
+        setRowChecked(row, !desiredChecked);
+        onChange();
+        alert(result.reason ?? '체크 상태를 변경하지 못했습니다');
+      } else {
+        const currentChecked = row.dataset.checked === 'true';
+
+        if (currentChecked !== desiredChecked) {
+          sendNow();
         }
+      }
+    }
 
-        if (generation !== rowGeneration) {
-          return;
-        }
+    row.querySelector('[data-checkbox]')?.addEventListener('click', () => {
+      const isChecked = row.dataset.checked === 'true';
+      setRowChecked(row, !isChecked);
 
-        if (!result.ok) {
-          setRowChecked(row, isChecked);
-          onChange();
-          alert(result.reason ?? '체크 상태를 변경하지 못했습니다');
+      if (rowTimer) {
+        clearTimeout(rowTimer);
+      }
+
+      rowTimer = setTimeout(() => {
+        if (!isSending) {
+          sendNow();
         }
-      });
+      }, CHECK_DEBOUNCE_MS);
+    });
 
     row
       .querySelector('[data-delete-item]')
