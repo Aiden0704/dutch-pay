@@ -73,7 +73,7 @@ export function renderRoomDetailHostHTML({
         </div>
       </div>
 
-      <p class="${styles.notice}">⚠️ 1인 금액은 백원 단위로 올림 처리돼요</p>
+      <p class="${styles.notice}">⚠️ 반올림 과정에서 방장 몫이 1원 내외로 조정될 수 있어요</p>
 
       ${itemListHtml}
 

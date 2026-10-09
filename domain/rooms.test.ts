@@ -537,3 +537,70 @@ describe('calculateRoomDetail', () => {
     expect(result.isSettled).toBe(true);
   });
 });
+
+describe('calculateRoomDetail - 랜덤 검증', () => {
+  function createRandomRoom(): Room {
+    const participantCount = 2 + Math.floor(Math.random() * 9);
+    const participants = Array.from({ length: participantCount }, (_, i) => ({
+      id: i + 1,
+      room_id: '랜덤방',
+      user_id: i + 1,
+      is_completed: false,
+    }));
+
+    const itemCount = 1 + Math.floor(Math.random() * 5);
+    const items = Array.from({ length: itemCount }, (_, i) => {
+      const amount = 1 + Math.floor(Math.random() * 100000);
+      const quantity = 1 + Math.floor(Math.random() * 3);
+      const checkerCount = 1 + Math.floor(Math.random() * participantCount);
+      const checkers = [...participants]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, checkerCount);
+
+      return {
+        id: i + 1,
+        room_id: '랜덤방',
+        name: `항목${i + 1}`,
+        amount,
+        quantity,
+        created_at: '2026-01-01T00:00:00Z',
+        item_checks: checkers.map((participant, idx) => ({
+          id: idx + 1,
+          item_id: i + 1,
+          participant_id: participant.id,
+          paid: false,
+        })),
+      };
+    });
+
+    return {
+      id: '랜덤방',
+      name: '랜덤방',
+      host_id: 1,
+      created_at: '2026-01-01T00:00:00Z',
+      is_settled: false,
+      participants,
+      items,
+    };
+  }
+
+  it('참여자가 여러 항목을 체크해도 랜덤 1000회 검증에서 합계가 항상 총 지출과 일치한다', () => {
+    const trials = 1000;
+
+    for (let i = 0; i < trials; i++) {
+      const room = createRandomRoom();
+      const totalAmount = room.items.reduce(
+        (sum, item) => sum + item.amount * item.quantity,
+        0
+      );
+
+      const result = calculateRoomDetail(room, room.participants[0].user_id);
+      const currentSum = result.participants.reduce(
+        (sum, participant) => sum + participant.amount,
+        0
+      );
+
+      expect(currentSum).toBe(totalAmount);
+    }
+  });
+});
