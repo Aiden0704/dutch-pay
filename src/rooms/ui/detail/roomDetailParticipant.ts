@@ -77,7 +77,7 @@ export function renderRoomDetailParticipantHTML({
         </div>
       </div>
 
-      <p class="${styles.notice}">⚠️ 1인 금액은 백원 단위로 올림 처리돼요</p>
+      <p class="${styles.notice}">⚠️ 반올림 과정에서 방장 몫이 1원 내외로 조정될 수 있어요</p>
       <p class="${styles.guide}">자신이 지불해야 할 항목을 체크하고 완료 버튼을 눌러주세요</p>
 
       ${itemListHtml}
